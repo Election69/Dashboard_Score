@@ -65,7 +65,7 @@
             background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2); font-size: 0.9em; border-left: 5px solid #2c3e50;
         }
-        .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
+        .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 50%; margin-right: 8px; vertical-align: middle; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 
         /* Popup Styling */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
@@ -93,7 +93,7 @@
 
     <div class="top-header">
         <div class="brand-section">
-            <i class="fas fa-vote-yea me-2 text-warning"></i> Dashboard รายงานผลคะแนนเลือกตั้ง 2569 เขต 4 นราธิวาส
+            <i class="fas fa-chart-pie me-2 text-warning"></i> Dashboard รายงานผลคะแนนเลือกตั้ง 2569 เขต 4 นราธิวาส
         </div>
 
         <div class="right-controls">
@@ -120,12 +120,12 @@
     <div id="map"></div>
 
     <div class="map-legend">
-        <div class="fw-bold mb-2">ขอบเขตอำเภอ</div>
+        <div class="fw-bold mb-2">สัญลักษณ์ (แยกตามอำเภอ)</div>
         <div class="mb-1"><span class="color-dot" style="background:#e74c3c;"></span> อ.ระแงะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#f39c12;"></span> อ.จะแนะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#3498db;"></span> อ.สุคิริน</div>
         <div class="mt-2 text-muted small border-top pt-2">
-            <i class="fas fa-circle text-success"></i> จุดหน่วยเลือกตั้ง
+            * สีหมุดตรงกับสีพื้นหลังอำเภอ
         </div>
     </div>
 
@@ -207,9 +207,9 @@
                     style: function(feature) {
                         const props = JSON.stringify(feature.properties).toLowerCase();
                         let color = '#999';
-                        if (props.includes('ra-ngae')) color = '#e74c3c';
-                        else if (props.includes('chanae')) color = '#f39c12';
-                        else if (props.includes('sukhirin')) color = '#3498db';
+                        if (props.includes('ra-ngae')) color = '#e74c3c'; // แดง
+                        else if (props.includes('chanae')) color = '#f39c12'; // ส้ม
+                        else if (props.includes('sukhirin')) color = '#3498db'; // ฟ้า
                         return { color: 'white', weight: 2, opacity: 1, fillColor: color, fillOpacity: 0.2 };
                     },
                     onEachFeature: function(feature, layer) {
@@ -228,13 +228,12 @@
                 const response = await fetch(scriptURL);
                 globalData = await response.json();
                 initFilterOptions(globalData.units);
-                filterData(); // โหลดครั้งแรก
+                filterData();
             } catch (error) { console.error("Fetch Error:", error); }
         }
 
         function initFilterOptions(units) {
             const amphoeSet = new Set();
-            // User Sheet: Col F (5) = Amphoe
             units.forEach(u => { if(u[5]) amphoeSet.add(u[5]); });
 
             const selectAmphoe = document.getElementById('selectAmphoe');
@@ -262,7 +261,6 @@
                 } else {
                     selectTambon.disabled = false;
                     const tambonSet = new Set();
-                    // User Sheet: Col F(5)=Amphoe, Col G(6)=Tambon
                     globalData.units.forEach(u => {
                         if (u[5] === selectedAmphoe && u[6]) tambonSet.add(u[6]);
                     });
@@ -342,9 +340,8 @@
                 let votedCount = 0;
 
                 if (unitScoresLog.length > 0) {
+                    // Update index to 5+i based on new sheet structure
                     const latest = unitScoresLog[unitScoresLog.length - 1];
-                    // Score Sheet: 0=Time, 1=Unit, 2=Amphoe, 3=Tambon, 4=TimeRound
-                    // Score starts at index 5 (Score1)
                     for(let i=0; i<6; i++) {
                         let sc = parseInt(latest[5+i]) || 0; 
                         currentScores[i] = sc;
@@ -366,8 +363,14 @@
             let ranked = scores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
             let percent = eligible > 0 ? (voted/eligible*100).toFixed(1) : 0;
 
+            // กำหนดสีหมุดตามอำเภอ
+            let markerColor = "#999";
+            if (amphoe.includes("ระแงะ")) markerColor = "#e74c3c";
+            else if (amphoe.includes("จะแนะ")) markerColor = "#f39c12";
+            else if (amphoe.includes("สุคิริน")) markerColor = "#3498db";
+
             let popupContent = `
-                <div class="popup-header">
+                <div class="popup-header" style="background:${markerColor};">
                     <span class="badge bg-light text-dark mb-1">อ.${amphoe} / ต.${tambon}</span>
                     <div class="popup-unit-name">${name}</div>
                 </div>
@@ -390,7 +393,12 @@
             popupContent += `</div>`;
 
             L.circleMarker([lat, lng], {
-                radius: 5, fillColor: "#28a745", color: "#ffffff", weight: 1.5, opacity: 1, fillOpacity: 1
+                radius: 6, 
+                fillColor: markerColor, // สีตามอำเภอ
+                color: "#ffffff", 
+                weight: 1.5, 
+                opacity: 1, 
+                fillOpacity: 1
             }).addTo(markersLayer).bindPopup(popupContent, { className: 'custom-popup' });
         }
 
@@ -433,4 +441,3 @@
     </script>
 </body>
 </html>
-
