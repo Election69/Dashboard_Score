@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard รายงานผลคะแนนเลือกตั้ง'69 นราธิวาส (เขต 4)</title>
+    <title>Dashboard รายงานผลคะแนนเลือกตั้ง 2569 เขต 4 นราธิวาส</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -36,13 +36,13 @@
             backdrop-filter: blur(5px);
         }
 
-        /* Dropdown Style (ปรับแก้: ชิดซ้าย) */
+        /* Dropdown Style */
         .custom-select {
             background: transparent; border: none;
             color: white; font-weight: bold; font-size: 0.95rem;
             padding: 5px 10px; cursor: pointer; outline: none;
             appearance: none; 
-            text-align: left; /* <-- ชิดซ้ายตามขอ */
+            text-align: left;
             min-width: 120px;
         }
         .custom-select option { color: #333; }
@@ -67,6 +67,7 @@
         }
         .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
+        /* Popup Styling */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 12px 15px; }
@@ -74,6 +75,7 @@
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
         .popup-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
+        /* Sidebar Styling */
         .offcanvas-end { width: 420px; z-index: 3000; top: 70px !important; height: calc(100vh - 70px); }
         @media (max-width: 768px) { 
             .offcanvas-end { width: 100%; top: 110px !important; height: calc(100vh - 110px); }
@@ -91,7 +93,7 @@
 
     <div class="top-header">
         <div class="brand-section">
-            <i class="fas fa-vote-yea me-2 text-warning"></i> Dashboard รายงานผลคะแนนเลือกตั้ง'69 นราธิวาส (เขต 4)
+            <i class="fas fa-chart-pie me-2 text-warning"></i> Dashboard รายงานผลคะแนนเลือกตั้ง 2569 เขต 4 นราธิวาส
         </div>
 
         <div class="right-controls">
@@ -226,12 +228,13 @@
                 const response = await fetch(scriptURL);
                 globalData = await response.json();
                 initFilterOptions(globalData.units);
-                filterData();
+                filterData(); // โหลดครั้งแรก
             } catch (error) { console.error("Fetch Error:", error); }
         }
 
         function initFilterOptions(units) {
             const amphoeSet = new Set();
+            // User Sheet: Col F (5) = Amphoe
             units.forEach(u => { if(u[5]) amphoeSet.add(u[5]); });
 
             const selectAmphoe = document.getElementById('selectAmphoe');
@@ -243,7 +246,6 @@
             });
         }
 
-        // --- ส่วนสำคัญ: Logic Filter & Zoom ---
         function filterData() {
             if (!globalData) return;
 
@@ -251,46 +253,44 @@
             const selectTambon = document.getElementById('selectTambon');
             const selectedTambon = selectTambon.value;
 
-            // 1. จัดการ Dropdown ตำบล (เมื่อเปลี่ยนอำเภอ)
+            // Handle Amphoe Change
             if (event && event.target.id === 'selectAmphoe') {
                 selectTambon.innerHTML = '<option value="all">🚩 ทุกตำบล</option>';
                 if (selectedAmphoe === 'all') {
                     selectTambon.disabled = true;
-                    // กรณี "ทุกอำเภอ" -> ซูมออกให้เห็นหมด (ใช้ GeoJSON Bounds)
                     if (geojsonLayer) map.fitBounds(geojsonLayer.getBounds());
                 } else {
                     selectTambon.disabled = false;
                     const tambonSet = new Set();
+                    // User Sheet: Col F(5)=Amphoe, Col G(6)=Tambon
                     globalData.units.forEach(u => {
                         if (u[5] === selectedAmphoe && u[6]) tambonSet.add(u[6]);
                     });
                     tambonSet.forEach(tam => {
                         let opt = document.createElement('option');
                         opt.value = tam;
-                        opt.text = tam; // <-- แสดงชื่อตำบลเพียวๆ (ไม่ต้องมีคำว่าตำบล)
+                        opt.text = tam;
                         selectTambon.appendChild(opt);
                     });
                 }
             }
 
-            // 2. กรองข้อมูล
+            // Filtering
             let filteredUnits = globalData.units.filter(u => {
                 let matchAmphoe = (selectedAmphoe === 'all') || (u[5] === selectedAmphoe);
                 let matchTambon = (selectedTambon === 'all') || (u[6] === selectedTambon);
                 return matchAmphoe && matchTambon;
             });
 
-            // 3. คำนวณคะแนนและวาดหมุด
+            // Calculate & Render
             calculateAndRender(filteredUnits, globalData.scores);
 
-            // 4. *** ZOOM LOGIC ***
+            // Zoom Logic
             if (selectedAmphoe === 'all') {
-                // เลือก "ทุกอำเภอ" -> ซูมออกให้เห็นขอบเขต 3 อำเภอ
                 if (geojsonLayer && geojsonLayer.getLayers().length > 0) {
                      map.fitBounds(geojsonLayer.getBounds());
                 }
             } else if (selectedTambon === 'all') {
-                // เลือก "อำเภอ.. + ทุกตำบล" -> ซูมไปหาขอบเขตอำเภอนั้น
                 if (geojsonLayer) {
                     geojsonLayer.eachLayer(function(layer) {
                         const props = JSON.stringify(layer.feature.properties).toLowerCase();
@@ -305,7 +305,6 @@
                     });
                 }
             } else {
-                // เลือก "อำเภอ.. + ตำบล.." -> ซูมไปหาหมุดในตำบลนั้น
                 if (filteredUnits.length > 0) {
                     let latlngs = [];
                     filteredUnits.forEach(u => {
@@ -344,8 +343,10 @@
 
                 if (unitScoresLog.length > 0) {
                     const latest = unitScoresLog[unitScoresLog.length - 1];
+                    // Score Sheet: 0=Time, 1=Unit, 2=Amphoe, 3=Tambon, 4=TimeRound
+                    // Score starts at index 5 (Score1)
                     for(let i=0; i<6; i++) {
-                        let sc = parseInt(latest[3+i]) || 0;
+                        let sc = parseInt(latest[5+i]) || 0; 
                         currentScores[i] = sc;
                         globalScores[i] += sc;
                         votedCount += sc;
@@ -389,7 +390,7 @@
             popupContent += `</div>`;
 
             L.circleMarker([lat, lng], {
-                radius: 5, fillColor: "#38b4d6", color: "#ffffff", weight: 1.5, opacity: 1, fillOpacity: 1
+                radius: 5, fillColor: "#28a745", color: "#ffffff", weight: 1.5, opacity: 1, fillOpacity: 1
             }).addTo(markersLayer).bindPopup(popupContent, { className: 'custom-popup' });
         }
 
@@ -432,4 +433,3 @@
     </script>
 </body>
 </html>
-
