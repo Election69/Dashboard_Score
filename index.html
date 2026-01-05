@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard รายงานผลคะแนนเลือกตั้ง 2569 เขต 4 นราธิวาส</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -22,11 +22,10 @@
             height: 70px; background: #2c3e50; color: white;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 2000; flex-shrink: 0;
+            z-index: 2000; flex-shrink: 0; /* ห้ามหด */
         }
         .brand-section { font-weight: bold; font-size: 1.3rem; display: flex; align-items: center; }
         
-        /* Filter Capsule */
         .right-controls { display: flex; align-items: center; gap: 15px; }
         .filter-capsule {
             display: flex; align-items: center;
@@ -36,18 +35,14 @@
             backdrop-filter: blur(5px);
         }
 
-        /* Dropdown Style */
         .custom-select {
             background: transparent; border: none;
             color: white; font-weight: bold; font-size: 0.95rem;
             padding: 5px 10px; cursor: pointer; outline: none;
-            appearance: none; 
-            text-align: left;
-            min-width: 120px;
+            appearance: none; text-align: left; min-width: 120px;
         }
         .custom-select option { color: #333; }
         .custom-select:disabled { color: rgba(255,255,255,0.4); cursor: not-allowed; }
-
         .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.3); margin: 0 5px; }
 
         .btn-toggle-sidebar {
@@ -55,9 +50,8 @@
             padding: 8px 20px; border-radius: 50px; font-weight: bold;
             transition: 0.2s; box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
         }
-        .btn-toggle-sidebar:hover { background: #d4ac0d; transform: translateY(-2px); }
 
-        /* --- Map & Sidebar --- */
+        /* --- Map --- */
         #map { flex-grow: 1; width: 100%; background: #f8f9fa; z-index: 1; }
         
         .map-legend {
@@ -65,9 +59,8 @@
             background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2); font-size: 0.9em; border-left: 5px solid #2c3e50;
         }
-        .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 50%; margin-right: 8px; vertical-align: middle; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
-        /* Popup Styling */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 12px 15px; }
@@ -75,13 +68,60 @@
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
         .popup-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* Sidebar Styling */
-        .offcanvas-end { width: 420px; z-index: 3000; top: 70px !important; height: calc(100vh - 70px); }
+        /* --- Sidebar (แก้ไขใหม่สำหรับมือถือ) --- */
+        .offcanvas-end { 
+            width: 420px; 
+            z-index: 3000; 
+            top: 70px !important; 
+            bottom: 0 !important; /* ยึดขอบล่าง */
+            height: auto !important; /* ให้ยืดตาม bottom */
+            border-left: 1px solid #ddd;
+        }
+
+        .offcanvas-body {
+            display: flex; 
+            flex-direction: column; /* จัดเรียงแนวตั้ง */
+            padding: 0; /* ลบ padding เดิมออกเพื่อจัด Layout เอง */
+            overflow: hidden; /* ห้าม scroll ตัว body หลัก */
+        }
+
+        /* ส่วนรายการอันดับ (ตรงกลาง - เลื่อนได้) */
+        .ranking-scroll-area {
+            flex-grow: 1; /* ขยายเต็มพื้นที่ */
+            overflow-y: auto; /* ให้เลื่อนเฉพาะตรงนี้ */
+            padding: 20px;
+        }
+
+        /* ส่วนสถิติ (ด้านล่าง - ติดขอบ) */
+        .stats-fixed-bottom {
+            flex-shrink: 0; /* ห้ามหด */
+            background: #fff;
+            padding: 15px 20px 30px 20px; /* เพิ่ม padding ล่างเผื่อ iPhone bar */
+            border-top: 1px solid #eee;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) { 
-            .offcanvas-end { width: 100%; top: 110px !important; height: calc(100vh - 110px); }
-            .top-header { flex-direction: column; height: auto; padding: 10px; gap: 10px; align-items: stretch; }
-            .right-controls { flex-direction: column; width: 100%; }
+            .top-header { 
+                height: auto; min-height: 70px; 
+                flex-direction: column; padding: 10px 15px; gap: 10px; 
+                align-items: stretch; /* ยืดเต็มจอ */
+            }
+            .brand-section { justify-content: center; }
+            .right-controls { flex-direction: column; width: 100%; gap: 10px;}
             .filter-capsule { width: 100%; justify-content: space-between; }
+            .btn-toggle-sidebar { width: 100%; text-align: center; }
+
+            /* ปรับตำแหน่ง Sidebar บนมือถือ */
+            .offcanvas-end { 
+                width: 100%; 
+                top: 125px !important; /* เว้นที่ให้ Header 2 ชั้น */
+            }
+            
+            /* ซ่อน Legend บนมือถือเพื่อไม่ให้เกะกะ */
+            .map-legend { bottom: 80px; left: 10px; padding: 10px; transform: scale(0.9); transform-origin: bottom left; opacity: 0.9; }
         }
         
         .rank-big { background: #fff; border-left: 5px solid #f1c40f; }
@@ -120,13 +160,10 @@
     <div id="map"></div>
 
     <div class="map-legend">
-        <div class="fw-bold mb-2">สัญลักษณ์ (แยกตามอำเภอ)</div>
+        <div class="fw-bold mb-2">ขอบเขตอำเภอ</div>
         <div class="mb-1"><span class="color-dot" style="background:#e74c3c;"></span> อ.ระแงะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#f39c12;"></span> อ.จะแนะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#3498db;"></span> อ.สุคิริน</div>
-        <div class="mt-2 text-muted small border-top pt-2">
-            * สีหมุดตรงกับสีพื้นหลังอำเภอ
-        </div>
     </div>
 
     <div class="offcanvas offcanvas-end show" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="rightSidebar">
@@ -134,16 +171,19 @@
             <h5 class="offcanvas-title text-dark fw-bold"><i class="fas fa-trophy text-warning me-2"></i> สรุปอันดับคะแนน</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
-        <div class="offcanvas-body bg-light d-flex flex-column">
-            <div class="flex-grow-1 overflow-auto">
+        
+        <div class="offcanvas-body bg-light">
+            
+            <div class="ranking-scroll-area">
                 <h6 class="fw-bold text-secondary small mb-3">🏆 3 อันดับแรก (พื้นที่ที่เลือก)</h6>
                 <div id="top3List"></div>
                 <h6 class="fw-bold text-secondary small mb-3 mt-4">อันดับอื่นๆ</h6>
                 <div id="next3List"></div>
             </div>
-            <div class="mt-3 pt-3 border-top">
+
+            <div class="stats-fixed-bottom">
                 <div class="card border-0 shadow-sm rounded-4 bg-white">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center p-3">
                         <small class="text-uppercase text-muted fw-bold" style="font-size:0.8em;">
                             <i class="fas fa-users"></i> ผู้มาใช้สิทธิ์ (Real-time)
                         </small>
@@ -155,6 +195,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -207,9 +248,9 @@
                     style: function(feature) {
                         const props = JSON.stringify(feature.properties).toLowerCase();
                         let color = '#999';
-                        if (props.includes('ra-ngae')) color = '#e74c3c'; // แดง
-                        else if (props.includes('chanae')) color = '#f39c12'; // ส้ม
-                        else if (props.includes('sukhirin')) color = '#3498db'; // ฟ้า
+                        if (props.includes('ra-ngae')) color = '#e74c3c';
+                        else if (props.includes('chanae')) color = '#f39c12';
+                        else if (props.includes('sukhirin')) color = '#3498db';
                         return { color: 'white', weight: 2, opacity: 1, fillColor: color, fillOpacity: 0.2 };
                     },
                     onEachFeature: function(feature, layer) {
@@ -252,7 +293,6 @@
             const selectTambon = document.getElementById('selectTambon');
             const selectedTambon = selectTambon.value;
 
-            // Handle Amphoe Change
             if (event && event.target.id === 'selectAmphoe') {
                 selectTambon.innerHTML = '<option value="all">🚩 ทุกตำบล</option>';
                 if (selectedAmphoe === 'all') {
@@ -273,17 +313,14 @@
                 }
             }
 
-            // Filtering
             let filteredUnits = globalData.units.filter(u => {
                 let matchAmphoe = (selectedAmphoe === 'all') || (u[5] === selectedAmphoe);
                 let matchTambon = (selectedTambon === 'all') || (u[6] === selectedTambon);
                 return matchAmphoe && matchTambon;
             });
 
-            // Calculate & Render
             calculateAndRender(filteredUnits, globalData.scores);
 
-            // Zoom Logic
             if (selectedAmphoe === 'all') {
                 if (geojsonLayer && geojsonLayer.getLayers().length > 0) {
                      map.fitBounds(geojsonLayer.getBounds());
@@ -340,7 +377,6 @@
                 let votedCount = 0;
 
                 if (unitScoresLog.length > 0) {
-                    // Update index to 5+i based on new sheet structure
                     const latest = unitScoresLog[unitScoresLog.length - 1];
                     for(let i=0; i<6; i++) {
                         let sc = parseInt(latest[5+i]) || 0; 
@@ -363,7 +399,6 @@
             let ranked = scores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
             let percent = eligible > 0 ? (voted/eligible*100).toFixed(1) : 0;
 
-            // กำหนดสีหมุดตามอำเภอ
             let markerColor = "#999";
             if (amphoe.includes("ระแงะ")) markerColor = "#e74c3c";
             else if (amphoe.includes("จะแนะ")) markerColor = "#f39c12";
@@ -393,12 +428,7 @@
             popupContent += `</div>`;
 
             L.circleMarker([lat, lng], {
-                radius: 6, 
-                fillColor: markerColor, // สีตามอำเภอ
-                color: "#ffffff", 
-                weight: 1.5, 
-                opacity: 1, 
-                fillOpacity: 1
+                radius: 6, fillColor: markerColor, color: "#ffffff", weight: 1.5, opacity: 1, fillOpacity: 1
             }).addTo(markersLayer).bindPopup(popupContent, { className: 'custom-popup' });
         }
 
@@ -441,4 +471,3 @@
     </script>
 </body>
 </html>
-
