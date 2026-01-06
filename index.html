@@ -17,14 +17,13 @@
             display: flex; flex-direction: column; height: 100vh;
         }
 
-        /* --- Header Design --- */
+        /* --- Header --- */
         .top-header {
             height: 70px; background: #2c3e50; color: white;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 9999; position: relative; flex-shrink: 0;
         }
-
         .brand-section { display: flex; align-items: center; }
         .brand-text { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.3rem; }
 
@@ -76,9 +75,10 @@
         }
         .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
+        /* Popup */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
-        .custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
-        .popup-header { background: #2c3e50; color: white; padding: 12px 15px; }
+        .custom-popup .leaflet-popup-content { margin: 0; width: 320px !important; } /* ขยายกว้างขึ้นนิดหน่อย */
+        .popup-header { background: #2c3e50; color: white; padding: 12px 15px; text-align: center; }
         .popup-body { padding: 15px; background: #fff; }
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
         .popup-img { width: 40px; height: 40px; object-fit: contain; margin-right: 10px; }
@@ -233,7 +233,7 @@
             }
         ];
 
-        const map = L.map('map', { zoomControl: false }).setView([6.05, 101.80], 10);
+        const map = L.map('map', { zoomControl: false }).setView([6.10, 101.82], 10);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -383,6 +383,35 @@
             }
         }
 
+        // --- New Helper Function: คำนวณคะแนนรวมตำบล ---
+        function getTambonStats(targetAmphoe, targetTambon) {
+            let aggScores = [0,0,0,0,0,0];
+            let aggEligible = 0;
+            let aggVoted = 0;
+
+            globalData.units.forEach(unit => {
+                // กรองเฉพาะหน่วยที่อยู่ในตำบล/อำเภอ ที่กำหนด
+                if (unit[5] === targetAmphoe && unit[6] === targetTambon) {
+                    aggEligible += (parseInt(unit[4]) || 0);
+
+                    // หาคะแนนล่าสุดของหน่วยนั้น
+                    const unitScoresLog = globalData.scores.filter(row => row[1] === unit[0]);
+                    if (unitScoresLog.length > 0) {
+                        const latest = unitScoresLog[unitScoresLog.length - 1];
+                        let unitVoted = 0;
+                        for(let i=0; i<6; i++) {
+                            let sc = parseInt(latest[5+i]) || 0;
+                            aggScores[i] += sc;
+                            unitVoted += sc;
+                        }
+                        aggVoted += unitVoted;
+                    }
+                }
+            });
+
+            return { scores: aggScores, eligible: aggEligible, voted: aggVoted };
+        }
+
         function calculateAndRender(units, scores) {
             markersLayer.clearLayers();
 
@@ -424,23 +453,37 @@
         }
 
         function createMarker(lat, lng, name, amphoe, tambon, scores, eligible, voted) {
-            let ranked = scores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
-            let percent = eligible > 0 ? (voted/eligible*100).toFixed(1) : 0;
+            // *** คำนวณคะแนนรวมของตำบล (แทนที่จะใช้คะแนนของหน่วย) ***
+            const tambonData = getTambonStats(amphoe, tambon);
+            
+            // เรียงลำดับคะแนนตามยอดรวมตำบล
+            let ranked = tambonData.scores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
+            
+            let tVoted = tambonData.voted;
+            let tEligible = tambonData.eligible;
+            let percent = tEligible > 0 ? (tVoted/tEligible*100).toFixed(1) : 0;
 
             let markerColor = "#999";
             if (amphoe.includes("ระแงะ")) markerColor = "#e74c3c";
             else if (amphoe.includes("จะแนะ")) markerColor = "#f39c12";
             else if (amphoe.includes("สุคิริน")) markerColor = "#3498db";
 
+            // *** ปรับแก้ Popup Header ให้แสดงชื่อตำบล และยอดรวม ***
             let popupContent = `
                 <div class="popup-header" style="background:${markerColor};">
-                    <span class="badge bg-light text-dark mb-1">อ.${amphoe} / ต.${tambon}</span>
-                    <div class="popup-unit-name">${name}</div>
+                    <div style="font-size:1.1rem; font-weight:bold;">${tambon}</div>
+                    <div style="font-size:0.9rem; opacity:0.9;">อำเภอ${amphoe}</div>
                 </div>
                 <div class="popup-body">
-                    <div class="d-flex justify-content-between bg-light p-2 rounded mb-2">
-                         <span>ผู้ใช้สิทธิ์: <b>${voted.toLocaleString()}</b></span>
-                         <span class="text-success fw-bold">${percent}%</span>
+                    <div class="d-flex justify-content-between bg-light p-2 rounded mb-2 text-center">
+                         <div style="flex:1;">
+                            <div class="fw-bold text-dark">${tVoted.toLocaleString()}</div>
+                            <small class="text-muted">จำนวนผู้มาใช้สิทธิ์</small>
+                         </div>
+                         <div style="flex:1; border-left:1px solid #ddd;">
+                            <div class="text-success fw-bold">${percent}%</div>
+                            <small class="text-muted">คิดเป็น</small>
+                         </div>
                     </div>`;
             
             for(let i=0; i<3; i++) {
@@ -496,7 +539,6 @@
             next3Div.innerHTML = '';
             for(let i=3; i<6; i++) {
                 let c = ranked[i];
-                // ปรับ CSS ตรงนี้: ลบ lh-1 และใส่ line-height 1.3
                 next3Div.innerHTML += `
                     <div class="d-flex align-items-center border-bottom py-2 justify-content-between">
                         <div class="d-flex align-items-center flex-grow-1" style="min-width: 0;">
