@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700;800&display=swap" rel="stylesheet">
 
     <style>
         body { 
@@ -17,22 +17,17 @@
             display: flex; flex-direction: column; height: 100vh;
         }
 
-        /* --- Header Design --- */
+        /* --- Header --- */
         .top-header {
             height: 70px; background: #2c3e50; color: white;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 2000; flex-shrink: 0;
         }
-
         .brand-section { display: flex; align-items: center; }
-        
-        .brand-text {
-            display: flex; align-items: center; gap: 10px;
-            font-weight: bold; font-size: 1.3rem;
-        }
+        .brand-text { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.3rem; }
 
-        /* --- Right Controls --- */
+        /* Filter Capsule */
         .right-controls { display: flex; align-items: center; gap: 15px; }
         .filter-capsule {
             display: flex; align-items: center;
@@ -41,7 +36,6 @@
             border-radius: 50px; padding: 5px 15px;
             backdrop-filter: blur(5px);
         }
-
         .custom-select {
             background: transparent; border: none;
             color: white; font-weight: bold; font-size: 0.95rem;
@@ -51,7 +45,6 @@
         .custom-select option { color: #333; }
         .custom-select:disabled { color: rgba(255,255,255,0.4); cursor: not-allowed; }
         .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.3); margin: 0 5px; }
-
         .btn-toggle-sidebar {
             background: #f1c40f; color: #2c3e50; border: none;
             padding: 8px 20px; border-radius: 50px; font-weight: bold;
@@ -60,7 +53,6 @@
 
         /* --- Map --- */
         #map { flex-grow: 1; width: 100%; background: #f8f9fa; z-index: 1; }
-        
         .map-legend {
             position: absolute; bottom: 30px; left: 30px; z-index: 1000;
             background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px;
@@ -68,13 +60,13 @@
         }
         .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
-        /* Popup Images */
+        /* Popup */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 12px 15px; }
         .popup-body { padding: 15px; background: #fff; }
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .popup-img { width: 40px; height: 40px; object-fit: contain; margin-right: 10px; } 
+        .popup-img { width: 40px; height: 40px; object-fit: contain; margin-right: 10px; }
 
         /* --- Sidebar --- */
         .offcanvas-end { 
@@ -87,34 +79,19 @@
         .stats-fixed-bottom { flex-shrink: 0; background: #fff; padding: 15px 20px 30px 20px; border-top: 1px solid #eee; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
 
         .rank-big { background: #fff; border-left: 5px solid #f1c40f; }
-        
-        /* ปรับรูปใน Sidebar */
-        .rank-img-big { 
-            width: 80px; height: auto; 
-            object-fit: contain; border-radius: 0; border: none; box-shadow: none;
-        }
-        .rank-img-small { 
-            width: 45px; height: auto; 
-            object-fit: contain; border-radius: 0;
-        }
+        .rank-img-big { width: 80px; height: auto; object-fit: contain; border: none; }
+        .rank-img-small { width: 45px; height: auto; object-fit: contain; border-radius: 0; }
 
-        /* --- Mobile Responsive --- */
         @media (max-width: 768px) { 
-            .top-header { 
-                height: auto; min-height: 80px; 
-                flex-direction: column; padding: 15px; gap: 15px; 
-                align-items: center;
-            }
+            .top-header { height: auto; min-height: 80px; flex-direction: column; padding: 15px; gap: 15px; align-items: center; }
             .brand-section { width: 100%; justify-content: center; }
             .brand-icon { display: none; }
             .brand-text { flex-direction: column; align-items: center; gap: 2px; line-height: 1.2; }
             .line-1 { font-size: 1.2rem; }
             .line-2 { font-size: 1rem; opacity: 0.85; font-weight: normal; }
-
             .right-controls { flex-direction: column; width: 100%; gap: 10px; }
             .filter-capsule { width: 100%; justify-content: space-between; }
             .btn-toggle-sidebar { width: 100%; }
-
             .offcanvas-end { width: 100%; top: 160px !important; }
             .map-legend { display: none; }
         }
@@ -126,7 +103,7 @@
         <div class="brand-section">
             <i class="fas fa-vote-yea me-3 text-warning brand-icon" style="font-size: 1.5rem;"></i>
             <div class="brand-text">
-                <span class="line-1">รายงานผลคะแนนเลือกตั้ง 2569</span>
+                <span class="line-1">รายงานผลคะแนนเลือกตั้ง ส.ส. 2569</span>
                 <span class="line-2">เขต 4 นราธิวาส</span>
             </div>
         </div>
@@ -136,11 +113,11 @@
                 <i class="fas fa-map-marker-alt ms-2 me-2 text-warning"></i>
                 <select id="selectAmphoe" class="custom-select" onchange="filterData()">
                     <option value="all">📍 ทุกอำเภอ</option>
-                    </select>
+                </select>
                 <div class="divider"></div>
                 <select id="selectTambon" class="custom-select" onchange="filterData()" disabled>
                     <option value="all">🚩 ทุกตำบล</option>
-                    </select>
+                </select>
                 <i class="fas fa-chevron-down ms-2 me-2 small text-light opacity-50"></i>
             </div>
 
@@ -175,7 +152,7 @@
                 <div class="card border-0 shadow-sm rounded-4 bg-white">
                     <div class="card-body text-center p-3">
                         <small class="text-uppercase text-muted fw-bold" style="font-size:0.8em;">
-                            <i class="fas fa-users"></i> ผู้มาใช้สิทธิ์ (Real-time)
+                            <i class="fas fa-users"></i> จำนวนผู้มาใช้สิทธิ์ (ตามตัวกรอง)
                         </small>
                         <h2 class="fw-bold text-dark my-1" id="totalTurnout">...</h2>
                         <div class="progress rounded-pill bg-light mt-2" style="height: 8px;">
@@ -192,7 +169,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // ============================================
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxjGKqtdINH8KQIH4exj3qyE2zdsNNDj9Mm5x7kWyFI-UgJ9a2zsbFKXpzffOtpm1ea_Q/exec';
         
         // ⚠️ เพิ่มข้อมูล Party Name และ Candidate Name ตรงนี้ ⚠️
@@ -229,7 +205,7 @@
                 no: 5, 
                 party: "พรรคภูมิใจไทย",
                 name: "นายซาการียา สะอิ",
-                imgSidebar: "https://img2.pic.in.th/55348d0b8050e4e43.png", 
+                imgSidebar: "https://img2.pic.in.th/51fe81d8bbda133aa.png", 
                 imgPopup: "https://img2.pic.in.th/5b028fab05d845d6a.png" 
             },
             { 
@@ -240,7 +216,6 @@
                 imgPopup: "https://img2.pic.in.th/69adc3cca999bb66d.png" 
             }
         ];
-        // ============================================
 
         const map = L.map('map', { zoomControl: false }).setView([6.05, 101.80], 10);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -358,7 +333,6 @@
                         if(selectedAmphoe.includes("ระแงะ")) mapName = "ra-ngae";
                         else if(selectedAmphoe.includes("จะแนะ")) mapName = "chanae";
                         else if(selectedAmphoe.includes("สุคิริน")) mapName = "sukhirin";
-                        
                         if(mapName && props.includes(mapName)) {
                             map.fitBounds(layer.getBounds());
                         }
@@ -406,7 +380,7 @@
                     for(let i=0; i<6; i++) {
                         let sc = parseInt(latest[5+i]) || 0; 
                         currentScores[i] = sc;
-                        globalScores[i] += sc;
+                        globalScores[i] += sc; 
                         votedCount += sc;
                     }
                     totalVoted += votedCount;
@@ -467,38 +441,43 @@
 
             const top3Div = document.getElementById('top3List');
             top3Div.innerHTML = '';
-            // --- 3 อันดับแรก แสดง 3 บรรทัด (เบอร์/พรรค/ชื่อ) ---
             for(let i=0; i<3; i++) {
                 let c = ranked[i];
                 top3Div.innerHTML += `
                     <div class="card mb-2 border-0 shadow-sm rank-big">
-                        <div class="card-body p-2 d-flex align-items-center">
-                            <div class="me-3 text-center" style="width:30px;"><h5 class="m-0 fw-bold text-warning">#${i+1}</h5></div>
-                            <img src="${c.imgSidebar}" class="rank-img-big me-3">
-                            <div class="flex-grow-1 text-start">
-                                <div class="fw-bold text-primary" style="font-size:0.9rem;">เบอร์ ${c.no}</div>
-                                <div class="fw-bold text-dark" style="font-size:1rem;">${c.party}</div>
-                                <small class="text-muted" style="font-size:0.85rem;">${c.name}</small>
+                        <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center flex-grow-1" style="min-width: 0;">
+                                <div class="me-2 text-center" style="width:30px; flex-shrink: 0;"><h5 class="m-0 fw-bold text-warning">#${i+1}</h5></div>
+                                <img src="${c.imgSidebar}" class="rank-img-big me-3">
+                                <div class="text-start overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate" style="font-size:0.9rem;">เบอร์ ${c.no}</div>
+                                    <div class="fw-bold text-secondary text-truncate" style="font-size:0.85rem;">${c.party}</div>
+                                    <small class="text-muted text-truncate" style="font-size:0.75rem;">${c.name}</small>
+                                </div>
                             </div>
-                            <div class="fw-bold fs-5 text-dark">${c.score.toLocaleString()}</div>
+                            <div class="text-end ps-2" style="flex-shrink: 0;">
+                                <div class="fw-bolder text-primary" style="font-size: 1.6rem; line-height: 1;">${c.score.toLocaleString()}</div>
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">คะแนน</small>
+                            </div>
                         </div>
                     </div>`;
             }
             
             const next3Div = document.getElementById('next3List');
             next3Div.innerHTML = '';
-            // --- อันดับรอง แสดง 2 บรรทัด (เบอร์/ชื่อ) ---
             for(let i=3; i<6; i++) {
                 let c = ranked[i];
                 next3Div.innerHTML += `
-                    <div class="d-flex align-items-center border-bottom py-2">
-                        <span class="me-3 text-muted fw-bold small text-center" style="width:30px;">#${i+1}</span>
-                        <img src="${c.imgSidebar}" class="rank-img-small me-3">
-                        <div class="flex-grow-1 text-start lh-1">
-                            <div class="fw-bold text-dark" style="font-size:0.9rem;">เบอร์ ${c.no}</div>
-                            <small class="text-muted" style="font-size:0.8rem;">${c.name}</small>
+                    <div class="d-flex align-items-center border-bottom py-2 justify-content-between">
+                        <div class="d-flex align-items-center flex-grow-1" style="min-width: 0;">
+                            <span class="me-3 text-muted fw-bold small text-center" style="width:30px; flex-shrink: 0;">#${i+1}</span>
+                            <img src="${c.imgSidebar}" class="rank-img-small me-3">
+                            <div class="text-start lh-1 overflow-hidden">
+                                <div class="fw-bold text-dark text-truncate" style="font-size:0.9rem;">เบอร์ ${c.no}</div>
+                                <small class="text-muted text-truncate" style="font-size:0.8rem;">${c.name}</small>
+                            </div>
                         </div>
-                        <span class="fw-bold text-dark">${c.score.toLocaleString()}</span>
+                        <span class="fw-bold text-primary fs-5 ps-2" style="flex-shrink: 0;">${c.score.toLocaleString()}</span>
                     </div>`;
             }
         }
