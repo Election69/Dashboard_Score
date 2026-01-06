@@ -17,15 +17,22 @@
             display: flex; flex-direction: column; height: 100vh;
         }
 
-        /* --- Header --- */
+        /* --- Header Design --- */
         .top-header {
             height: 70px; background: #2c3e50; color: white;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 2000; flex-shrink: 0; /* ห้ามหด */
+            z-index: 2000; flex-shrink: 0;
         }
-        .brand-section { font-weight: bold; font-size: 1.3rem; display: flex; align-items: center; }
+
+        .brand-section { display: flex; align-items: center; }
         
+        .brand-text {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: bold; font-size: 1.3rem;
+        }
+
+        /* --- Right Controls --- */
         .right-controls { display: flex; align-items: center; gap: 15px; }
         .filter-capsule {
             display: flex; align-items: center;
@@ -61,79 +68,67 @@
         }
         .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
+        /* Popup Images */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 12px 15px; }
         .popup-body { padding: 15px; background: #fff; }
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .popup-img { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .popup-img { width: 40px; height: 40px; object-fit: contain; margin-right: 10px; } 
 
-        /* --- Sidebar (แก้ไขใหม่สำหรับมือถือ) --- */
+        /* --- Sidebar --- */
         .offcanvas-end { 
-            width: 420px; 
-            z-index: 3000; 
-            top: 70px !important; 
-            bottom: 0 !important; /* ยึดขอบล่าง */
-            height: auto !important; /* ให้ยืดตาม bottom */
+            width: 420px; z-index: 3000; 
+            top: 70px !important; bottom: 0 !important; height: auto !important; 
             border-left: 1px solid #ddd;
         }
+        .offcanvas-body { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+        .ranking-scroll-area { flex-grow: 1; overflow-y: auto; padding: 20px; }
+        .stats-fixed-bottom { flex-shrink: 0; background: #fff; padding: 15px 20px 30px 20px; border-top: 1px solid #eee; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
 
-        .offcanvas-body {
-            display: flex; 
-            flex-direction: column; /* จัดเรียงแนวตั้ง */
-            padding: 0; /* ลบ padding เดิมออกเพื่อจัด Layout เอง */
-            overflow: hidden; /* ห้าม scroll ตัว body หลัก */
+        .rank-big { background: #fff; border-left: 5px solid #f1c40f; }
+        
+        /* ปรับรูปใน Sidebar */
+        .rank-img-big { 
+            width: 80px; height: auto; 
+            object-fit: contain; border-radius: 0; border: none; box-shadow: none;
+        }
+        .rank-img-small { 
+            width: 45px; height: auto; 
+            object-fit: contain; border-radius: 0;
         }
 
-        /* ส่วนรายการอันดับ (ตรงกลาง - เลื่อนได้) */
-        .ranking-scroll-area {
-            flex-grow: 1; /* ขยายเต็มพื้นที่ */
-            overflow-y: auto; /* ให้เลื่อนเฉพาะตรงนี้ */
-            padding: 20px;
-        }
-
-        /* ส่วนสถิติ (ด้านล่าง - ติดขอบ) */
-        .stats-fixed-bottom {
-            flex-shrink: 0; /* ห้ามหด */
-            background: #fff;
-            padding: 15px 20px 30px 20px; /* เพิ่ม padding ล่างเผื่อ iPhone bar */
-            border-top: 1px solid #eee;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
-            z-index: 10;
-        }
-
-        /* Mobile Responsive */
+        /* --- Mobile Responsive --- */
         @media (max-width: 768px) { 
             .top-header { 
-                height: auto; min-height: 70px; 
-                flex-direction: column; padding: 10px 15px; gap: 10px; 
-                align-items: stretch; /* ยืดเต็มจอ */
+                height: auto; min-height: 80px; 
+                flex-direction: column; padding: 15px; gap: 15px; 
+                align-items: center;
             }
-            .brand-section { justify-content: center; }
-            .right-controls { flex-direction: column; width: 100%; gap: 10px;}
-            .filter-capsule { width: 100%; justify-content: space-between; }
-            .btn-toggle-sidebar { width: 100%; text-align: center; }
+            .brand-section { width: 100%; justify-content: center; }
+            .brand-icon { display: none; }
+            .brand-text { flex-direction: column; align-items: center; gap: 2px; line-height: 1.2; }
+            .line-1 { font-size: 1.2rem; }
+            .line-2 { font-size: 1rem; opacity: 0.85; font-weight: normal; }
 
-            /* ปรับตำแหน่ง Sidebar บนมือถือ */
-            .offcanvas-end { 
-                width: 100%; 
-                top: 125px !important; /* เว้นที่ให้ Header 2 ชั้น */
-            }
-            
-            /* ซ่อน Legend บนมือถือเพื่อไม่ให้เกะกะ */
-            .map-legend { bottom: 80px; left: 10px; padding: 10px; transform: scale(0.9); transform-origin: bottom left; opacity: 0.9; }
+            .right-controls { flex-direction: column; width: 100%; gap: 10px; }
+            .filter-capsule { width: 100%; justify-content: space-between; }
+            .btn-toggle-sidebar { width: 100%; }
+
+            .offcanvas-end { width: 100%; top: 160px !important; }
+            .map-legend { display: none; }
         }
-        
-        .rank-big { background: #fff; border-left: 5px solid #f1c40f; }
-        .rank-img-big { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-        .rank-img-small { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
     </style>
 </head>
 <body>
 
     <div class="top-header">
         <div class="brand-section">
-            <i class="fas fa-vote-yea me-2 text-warning"></i> Dashboard รายงานผลคะแนนเลือกตั้ง 2569 เขต 4 นราธิวาส
+            <i class="fas fa-vote-yea me-3 text-warning brand-icon" style="font-size: 1.5rem;"></i>
+            <div class="brand-text">
+                <span class="line-1">รายงานผลคะแนนเลือกตั้ง 2569</span>
+                <span class="line-2">เขต 4 นราธิวาส</span>
+            </div>
         </div>
 
         <div class="right-controls">
@@ -142,9 +137,7 @@
                 <select id="selectAmphoe" class="custom-select" onchange="filterData()">
                     <option value="all">📍 ทุกอำเภอ</option>
                     </select>
-                
                 <div class="divider"></div>
-                
                 <select id="selectTambon" class="custom-select" onchange="filterData()" disabled>
                     <option value="all">🚩 ทุกตำบล</option>
                     </select>
@@ -160,7 +153,7 @@
     <div id="map"></div>
 
     <div class="map-legend">
-        <div class="fw-bold mb-2">ขอบเขตอำเภอ</div>
+        <div class="fw-bold mb-2">สัญลักษณ์ (แยกตามอำเภอ)</div>
         <div class="mb-1"><span class="color-dot" style="background:#e74c3c;"></span> อ.ระแงะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#f39c12;"></span> อ.จะแนะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#3498db;"></span> อ.สุคิริน</div>
@@ -171,16 +164,13 @@
             <h5 class="offcanvas-title text-dark fw-bold"><i class="fas fa-trophy text-warning me-2"></i> สรุปอันดับคะแนน</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
-        
         <div class="offcanvas-body bg-light">
-            
             <div class="ranking-scroll-area">
                 <h6 class="fw-bold text-secondary small mb-3">🏆 3 อันดับแรก (พื้นที่ที่เลือก)</h6>
                 <div id="top3List"></div>
                 <h6 class="fw-bold text-secondary small mb-3 mt-4">อันดับอื่นๆ</h6>
                 <div id="next3List"></div>
             </div>
-
             <div class="stats-fixed-bottom">
                 <div class="card border-0 shadow-sm rounded-4 bg-white">
                     <div class="card-body text-center p-3">
@@ -195,7 +185,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -204,16 +193,52 @@
     
     <script>
         // ============================================
-        // ⚠️ ใส่ URL APPS SCRIPT ตรงนี้ ⚠️
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxjGKqtdINH8KQIH4exj3qyE2zdsNNDj9Mm5x7kWyFI-UgJ9a2zsbFKXpzffOtpm1ea_Q/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxjGKqtdINH8KQIH4exj3qyE2zdsNNDj9Mm5x7kWyFI-UgJ9a2zsbFKXpzffOtpm1ea_Q/exec';
         
+        // ⚠️ เพิ่มข้อมูล Party Name และ Candidate Name ตรงนี้ ⚠️
         const candidatesConfig = [
-            { no: 1, name: "เบอร์ 1", color: "#0d6efd", img: "https://img2.pic.in.th/1350d68330953409d.png" },
-            { no: 2, name: "เบอร์ 2", color: "#198754", img: "https://img5.pic.in.th/file/secure-sv1/2e202bb41458cf2b1.png" },
-            { no: 3, name: "เบอร์ 3", color: "#dc3545", img: "https://img2.pic.in.th/315d39fe9e514ce03.png" },
-            { no: 4, name: "เบอร์ 4", color: "#fd7e14", img: "https://img5.pic.in.th/file/secure-sv1/48e77349737a85eda.png" },
-            { no: 5, name: "เบอร์ 5", color: "#0dcaf0", img: "https://img2.pic.in.th/5b028fab05d845d6a.png" },
-            { no: 6, name: "เบอร์ 6", color: "#6f42c1", img: "https://img2.pic.in.th/69adc3cca999bb66d.png" }
+            { 
+                no: 1, 
+                party: "พรรคประชาชาติ",       // แก้ชื่อพรรคตรงนี้
+                name: "นายกูเฮง ยาวอหะซัน", // แก้ชื่อผู้สมัครตรงนี้
+                imgSidebar: "https://img2.pic.in.th/14746ae2e943b791f.png", 
+                imgPopup: "https://img2.pic.in.th/1350d68330953409d.png" 
+            },
+            { 
+                no: 2, 
+                party: "พรรคประชาธิปัตย์",
+                name: "นายกอเซ็ง มะเซ็ง",
+                imgSidebar: "https://img5.pic.in.th/file/secure-sv1/2f20164de60a3b0c8.png", 
+                imgPopup: "https://img5.pic.in.th/file/secure-sv1/2e202bb41458cf2b1.png" 
+            },
+            { 
+                no: 3, 
+                party: "พรรคกล้าธรรม",
+                name: "นายอดิศร อาแวเต๊ะ",
+                imgSidebar: "https://img2.pic.in.th/31703a588faa60731.jpg", 
+                imgPopup: "https://img2.pic.in.th/315d39fe9e514ce03.png" 
+            },
+            { 
+                no: 4, 
+                party: "พรรคประชาชน",
+                name: "นายอักบัร เซราลี",
+                imgSidebar: "https://img5.pic.in.th/file/secure-sv1/47d4ceea9d498867b.png", 
+                imgPopup: "https://img5.pic.in.th/file/secure-sv1/48e77349737a85eda.png" 
+            },
+            { 
+                no: 5, 
+                party: "พรรคภูมิใจไทย",
+                name: "นายซาการียา สะอิ",
+                imgSidebar: "https://img2.pic.in.th/55348d0b8050e4e43.png", 
+                imgPopup: "https://img2.pic.in.th/5b028fab05d845d6a.png" 
+            },
+            { 
+                no: 6, 
+                party: "พรรคเพื่อไทย",
+                name: "นายมาร์วาน บินบีดี",
+                imgSidebar: "https://img2.pic.in.th/69adc3cca999bb66d.png", 
+                imgPopup: "https://img2.pic.in.th/69adc3cca999bb66d.png" 
+            }
         ];
         // ============================================
 
@@ -420,7 +445,7 @@
                 popupContent += `
                     <div class="popup-row">
                         <div style="width:20px; color:#ccc;">#${i+1}</div>
-                        <img src="${c.img}" class="popup-img">
+                        <img src="${c.imgPopup}" class="popup-img">
                         <div class="flex-grow-1"><small>เบอร์ ${c.no}</small> <br> <b>${c.name}</b></div>
                         <div class="fw-bold text-success">${c.score.toLocaleString()}</div>
                     </div>`;
@@ -442,14 +467,19 @@
 
             const top3Div = document.getElementById('top3List');
             top3Div.innerHTML = '';
+            // --- 3 อันดับแรก แสดง 3 บรรทัด (เบอร์/พรรค/ชื่อ) ---
             for(let i=0; i<3; i++) {
                 let c = ranked[i];
                 top3Div.innerHTML += `
                     <div class="card mb-2 border-0 shadow-sm rank-big">
                         <div class="card-body p-2 d-flex align-items-center">
                             <div class="me-3 text-center" style="width:30px;"><h5 class="m-0 fw-bold text-warning">#${i+1}</h5></div>
-                            <img src="${c.img}" class="rank-img-big me-3">
-                            <div class="flex-grow-1"><h6 class="m-0 fw-bold text-dark">เบอร์ ${c.no}</h6><small class="text-muted">${c.name}</small></div>
+                            <img src="${c.imgSidebar}" class="rank-img-big me-3">
+                            <div class="flex-grow-1 text-start">
+                                <div class="fw-bold text-primary" style="font-size:0.9rem;">เบอร์ ${c.no}</div>
+                                <div class="fw-bold text-dark" style="font-size:1rem;">${c.party}</div>
+                                <small class="text-muted" style="font-size:0.85rem;">${c.name}</small>
+                            </div>
                             <div class="fw-bold fs-5 text-dark">${c.score.toLocaleString()}</div>
                         </div>
                     </div>`;
@@ -457,13 +487,17 @@
             
             const next3Div = document.getElementById('next3List');
             next3Div.innerHTML = '';
+            // --- อันดับรอง แสดง 2 บรรทัด (เบอร์/ชื่อ) ---
             for(let i=3; i<6; i++) {
                 let c = ranked[i];
                 next3Div.innerHTML += `
                     <div class="d-flex align-items-center border-bottom py-2">
                         <span class="me-3 text-muted fw-bold small text-center" style="width:30px;">#${i+1}</span>
-                        <img src="${c.img}" class="rank-img-small me-3">
-                        <div class="flex-grow-1 small"><span class="fw-bold text-dark">เบอร์ ${c.no}</span></div>
+                        <img src="${c.imgSidebar}" class="rank-img-small me-3">
+                        <div class="flex-grow-1 text-start lh-1">
+                            <div class="fw-bold text-dark" style="font-size:0.9rem;">เบอร์ ${c.no}</div>
+                            <small class="text-muted" style="font-size:0.8rem;">${c.name}</small>
+                        </div>
                         <span class="fw-bold text-dark">${c.score.toLocaleString()}</span>
                     </div>`;
             }
