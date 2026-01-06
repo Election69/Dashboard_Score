@@ -19,39 +19,80 @@
 
         /* --- Header --- */
         .top-header {
-            height: 70px; background: #2c3e50; color: white;
+            height: auto; min-height: 70px; /* ปรับให้ยืดหยุ่น */
+            background: #2c3e50; color: white;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 2000; flex-shrink: 0;
+            padding: 10px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 2000; flex-shrink: 0; gap: 15px;
         }
-        .brand-section { display: flex; align-items: center; }
+
+        .brand-section { display: flex; align-items: center; min-width: fit-content; }
         .brand-text { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.3rem; }
 
-        /* Filter Capsule */
-        .right-controls { display: flex; align-items: center; gap: 15px; }
-        .filter-capsule {
-            display: flex; align-items: center;
+        /* Controls Container */
+        .right-controls { 
+            display: flex; align-items: center; gap: 15px; 
+            flex-grow: 1; justify-content: flex-end; /* ดันไปขวา */
+            overflow: hidden; /* ป้องกันล้น */
+        }
+
+        /* --- New: Amphoe Buttons Style --- */
+        .amphoe-group {
+            display: flex; gap: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px; border-radius: 30px;
+            overflow-x: auto; /* เลื่อนแนวนอนได้บนมือถือ */
+            white-space: nowrap;
+            scrollbar-width: none; /* ซ่อน Scrollbar Firefox */
+        }
+        .amphoe-group::-webkit-scrollbar { display: none; /* ซ่อน Scrollbar Chrome */ }
+
+        .btn-filter {
+            background: transparent; border: none;
+            color: rgba(255,255,255,0.8);
+            padding: 6px 15px; border-radius: 20px;
+            font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-filter:hover { color: white; background: rgba(255,255,255,0.1); }
+        
+        .btn-filter.active {
+            background: white; color: #2c3e50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Divider */
+        .divider { width: 1px; height: 25px; background: rgba(255,255,255,0.2); margin: 0 5px; flex-shrink: 0; }
+
+        /* Tambon Dropdown Style */
+        .tambon-wrapper {
+            position: relative;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 50px; padding: 5px 15px;
-            backdrop-filter: blur(5px);
+            border-radius: 20px; padding: 0 10px;
+            display: flex; align-items: center;
+            min-width: 140px;
         }
         .custom-select {
             background: transparent; border: none;
             color: white; font-weight: bold; font-size: 0.95rem;
-            padding: 5px 10px; cursor: pointer; outline: none;
-            appearance: none; text-align: left; min-width: 120px;
+            padding: 6px 25px 6px 10px; /* เว้นที่ให้ลูกศร */
+            cursor: pointer; outline: none;
+            appearance: none; width: 100%;
         }
         .custom-select option { color: #333; }
         .custom-select:disabled { color: rgba(255,255,255,0.4); cursor: not-allowed; }
-        .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.3); margin: 0 5px; }
+        .dropdown-icon { position: absolute; right: 10px; font-size: 0.8em; opacity: 0.7; pointer-events: none; }
+
         .btn-toggle-sidebar {
             background: #f1c40f; color: #2c3e50; border: none;
             padding: 8px 20px; border-radius: 50px; font-weight: bold;
             transition: 0.2s; box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
+            white-space: nowrap;
         }
 
-        /* --- Map --- */
+        /* --- Map & Sidebar --- */
         #map { flex-grow: 1; width: 100%; background: #f8f9fa; z-index: 1; }
         .map-legend {
             position: absolute; bottom: 30px; left: 30px; z-index: 1000;
@@ -60,7 +101,6 @@
         }
         .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
-        /* Popup */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 12px 15px; }
@@ -68,7 +108,6 @@
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
         .popup-img { width: 40px; height: 40px; object-fit: contain; margin-right: 10px; }
 
-        /* --- Sidebar --- */
         .offcanvas-end { 
             width: 420px; z-index: 3000; 
             top: 70px !important; bottom: 0 !important; height: auto !important; 
@@ -83,15 +122,23 @@
         .rank-img-small { width: 45px; height: auto; object-fit: contain; border-radius: 0; }
 
         @media (max-width: 768px) { 
-            .top-header { height: auto; min-height: 80px; flex-direction: column; padding: 15px; gap: 15px; align-items: center; }
-            .brand-section { width: 100%; justify-content: center; }
+            .top-header { flex-direction: column; padding: 15px; gap: 15px; align-items: stretch; }
+            .brand-section { justify-content: center; }
             .brand-icon { display: none; }
             .brand-text { flex-direction: column; align-items: center; gap: 2px; line-height: 1.2; }
-            .line-1 { font-size: 1.2rem; }
-            .line-2 { font-size: 1rem; opacity: 0.85; font-weight: normal; }
-            .right-controls { flex-direction: column; width: 100%; gap: 10px; }
-            .filter-capsule { width: 100%; justify-content: space-between; }
-            .btn-toggle-sidebar { width: 100%; }
+            
+            .right-controls { 
+                flex-direction: row; flex-wrap: wrap; 
+                justify-content: space-between; width: 100%; 
+            }
+            .amphoe-group { flex-basis: 100%; order: 1; justify-content: space-between; margin-bottom: 5px; }
+            .btn-filter { flex-grow: 1; text-align: center; }
+            
+            .divider { display: none; } /* ซ่อนเส้นคั่นบนมือถือ */
+            
+            .tambon-wrapper { flex-grow: 1; order: 2; margin-right: 10px; }
+            .btn-toggle-sidebar { order: 3; }
+
             .offcanvas-end { width: 100%; top: 160px !important; }
             .map-legend { display: none; }
         }
@@ -109,16 +156,16 @@
         </div>
 
         <div class="right-controls">
-            <div class="filter-capsule">
-                <i class="fas fa-map-marker-alt ms-2 me-2 text-warning"></i>
-                <select id="selectAmphoe" class="custom-select" onchange="filterData()">
-                    <option value="all">📍 ทุกอำเภอ</option>
-                </select>
-                <div class="divider"></div>
+            <div id="amphoeGroup" class="amphoe-group">
+                </div>
+
+            <div class="divider"></div>
+
+            <div class="tambon-wrapper">
                 <select id="selectTambon" class="custom-select" onchange="filterData()" disabled>
                     <option value="all">🚩 ทุกตำบล</option>
                 </select>
-                <i class="fas fa-chevron-down ms-2 me-2 small text-light opacity-50"></i>
+                <i class="fas fa-chevron-down text-white dropdown-icon"></i>
             </div>
 
             <button class="btn-toggle-sidebar" type="button" data-bs-toggle="offcanvas" data-bs-target="#rightSidebar">
@@ -130,7 +177,7 @@
     <div id="map"></div>
 
     <div class="map-legend">
-        <div class="fw-bold mb-2">สัญลักษณ์ (แยกตามอำเภอ)</div>
+        <div class="fw-bold mb-2">สัญลักษณ์</div>
         <div class="mb-1"><span class="color-dot" style="background:#e74c3c;"></span> อ.ระแงะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#f39c12;"></span> อ.จะแนะ</div>
         <div class="mb-1"><span class="color-dot" style="background:#3498db;"></span> อ.สุคิริน</div>
@@ -152,7 +199,7 @@
                 <div class="card border-0 shadow-sm rounded-4 bg-white">
                     <div class="card-body text-center p-3">
                         <small class="text-uppercase text-muted fw-bold" style="font-size:0.8em;">
-                            <i class="fas fa-users"></i> จำนวนผู้มาใช้สิทธิ์ (ตามตัวกรอง)
+                            <i class="fas fa-users"></i> คะแนนรวม (ตามตัวกรอง)
                         </small>
                         <h2 class="fw-bold text-dark my-1" id="totalTurnout">...</h2>
                         <div class="progress rounded-pill bg-light mt-2" style="height: 8px;">
@@ -228,6 +275,7 @@
         let geojsonLayer;
         let markersLayer = L.layerGroup().addTo(map);
         let globalData = null;
+        let currentAmphoe = 'all'; // ตัวแปรเก็บค่าอำเภอที่เลือก
 
         loadBoundaries();
         fetchData();
@@ -268,50 +316,89 @@
             try {
                 const response = await fetch(scriptURL);
                 globalData = await response.json();
-                initFilterOptions(globalData.units);
+                initFilterButtons(globalData.units); // ใช้ฟังก์ชันสร้างปุ่มแทน
                 filterData();
             } catch (error) { console.error("Fetch Error:", error); }
         }
 
-        function initFilterOptions(units) {
+        // --- แก้ไข: สร้างปุ่มแทน Dropdown ---
+        function initFilterButtons(units) {
             const amphoeSet = new Set();
             units.forEach(u => { if(u[5]) amphoeSet.add(u[5]); });
 
-            const selectAmphoe = document.getElementById('selectAmphoe');
+            const btnContainer = document.getElementById('amphoeGroup');
+            
+            // 1. ปุ่ม "ทั้งหมด"
+            let allBtn = document.createElement('button');
+            allBtn.className = 'btn-filter active';
+            allBtn.innerText = 'ทั้งหมด';
+            allBtn.onclick = () => selectAmphoe('all', allBtn);
+            btnContainer.appendChild(allBtn);
+
+            // 2. ปุ่มอำเภอต่างๆ
             amphoeSet.forEach(amp => {
-                let opt = document.createElement('option');
-                opt.value = amp;
-                opt.text = `อ.${amp}`;
-                selectAmphoe.appendChild(opt);
+                let btn = document.createElement('button');
+                btn.className = 'btn-filter';
+                btn.innerText = amp;
+                btn.onclick = () => selectAmphoe(amp, btn);
+                btnContainer.appendChild(btn);
             });
         }
 
-        function filterData() {
-            if (!globalData) return;
+        // --- ฟังก์ชันเมื่อกดปุ่มอำเภอ ---
+        function selectAmphoe(amphoe, btnElement) {
+            currentAmphoe = amphoe;
 
-            const selectedAmphoe = document.getElementById('selectAmphoe').value;
+            // จัดการ Active Class
+            document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            // รีเซ็ตและอัปเดต Dropdown ตำบล
             const selectTambon = document.getElementById('selectTambon');
-            const selectedTambon = selectTambon.value;
+            selectTambon.innerHTML = '<option value="all">🚩 ทุกตำบล</option>';
+            selectTambon.value = 'all';
 
-            if (event && event.target.id === 'selectAmphoe') {
-                selectTambon.innerHTML = '<option value="all">🚩 ทุกตำบล</option>';
-                if (selectedAmphoe === 'all') {
-                    selectTambon.disabled = true;
-                    if (geojsonLayer) map.fitBounds(geojsonLayer.getBounds());
-                } else {
-                    selectTambon.disabled = false;
-                    const tambonSet = new Set();
-                    globalData.units.forEach(u => {
-                        if (u[5] === selectedAmphoe && u[6]) tambonSet.add(u[6]);
-                    });
-                    tambonSet.forEach(tam => {
-                        let opt = document.createElement('option');
-                        opt.value = tam;
-                        opt.text = tam;
-                        selectTambon.appendChild(opt);
+            if (currentAmphoe === 'all') {
+                selectTambon.disabled = true;
+                if (geojsonLayer) map.fitBounds(geojsonLayer.getBounds());
+            } else {
+                selectTambon.disabled = false;
+                const tambonSet = new Set();
+                globalData.units.forEach(u => {
+                    if (u[5] === currentAmphoe && u[6]) tambonSet.add(u[6]);
+                });
+                tambonSet.forEach(tam => {
+                    let opt = document.createElement('option');
+                    opt.value = tam;
+                    opt.text = tam;
+                    selectTambon.appendChild(opt);
+                });
+                
+                // Zoom ไปหาอำเภอนั้น (ใช้ Logic เดิม)
+                if (geojsonLayer) {
+                    geojsonLayer.eachLayer(function(layer) {
+                        const props = JSON.stringify(layer.feature.properties).toLowerCase();
+                        let mapName = "";
+                        if(currentAmphoe.includes("ระแงะ")) mapName = "ra-ngae";
+                        else if(currentAmphoe.includes("จะแนะ")) mapName = "chanae";
+                        else if(currentAmphoe.includes("สุคิริน")) mapName = "sukhirin";
+                        if(mapName && props.includes(mapName)) {
+                            map.fitBounds(layer.getBounds());
+                        }
                     });
                 }
             }
+
+            filterData();
+        }
+
+        // --- ฟังก์ชันกรองข้อมูลหลัก ---
+        function filterData() {
+            if (!globalData) return;
+
+            const selectedAmphoe = currentAmphoe; // ใช้ค่าจากตัวแปร global
+            const selectTambon = document.getElementById('selectTambon');
+            const selectedTambon = selectTambon.value;
 
             let filteredUnits = globalData.units.filter(u => {
                 let matchAmphoe = (selectedAmphoe === 'all') || (u[5] === selectedAmphoe);
@@ -321,24 +408,8 @@
 
             calculateAndRender(filteredUnits, globalData.scores);
 
-            if (selectedAmphoe === 'all') {
-                if (geojsonLayer && geojsonLayer.getLayers().length > 0) {
-                     map.fitBounds(geojsonLayer.getBounds());
-                }
-            } else if (selectedTambon === 'all') {
-                if (geojsonLayer) {
-                    geojsonLayer.eachLayer(function(layer) {
-                        const props = JSON.stringify(layer.feature.properties).toLowerCase();
-                        let mapName = "";
-                        if(selectedAmphoe.includes("ระแงะ")) mapName = "ra-ngae";
-                        else if(selectedAmphoe.includes("จะแนะ")) mapName = "chanae";
-                        else if(selectedAmphoe.includes("สุคิริน")) mapName = "sukhirin";
-                        if(mapName && props.includes(mapName)) {
-                            map.fitBounds(layer.getBounds());
-                        }
-                    });
-                }
-            } else {
+            // Zoom Logic สำหรับตำบล
+            if (selectedTambon !== 'all') {
                 if (filteredUnits.length > 0) {
                     let latlngs = [];
                     filteredUnits.forEach(u => {
