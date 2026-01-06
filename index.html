@@ -17,15 +17,12 @@
             display: flex; flex-direction: column; height: 100vh;
         }
 
-        /* --- Header Design (ชั้นบนสุด) --- */
+        /* --- Header Design --- */
         .top-header {
             height: 70px; background: #2c3e50; color: white;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            /* แก้ไข 1: เพิ่ม Z-index ให้สูงที่สุด เพื่อไม่ให้ Sidebar บัง */
-            z-index: 9999; 
-            position: relative;
-            flex-shrink: 0;
+            z-index: 9999; position: relative; flex-shrink: 0;
         }
 
         .brand-section { display: flex; align-items: center; }
@@ -34,7 +31,6 @@
         /* Controls */
         .right-controls { display: flex; align-items: center; gap: 15px; }
         
-        /* Amphoe Buttons */
         .amphoe-group {
             display: flex; gap: 5px;
             background: rgba(255,255,255,0.1); padding: 4px; border-radius: 30px;
@@ -52,7 +48,6 @@
 
         .divider { width: 1px; height: 25px; background: rgba(255,255,255,0.2); margin: 0 5px; flex-shrink: 0; }
 
-        /* Tambon Dropdown */
         .tambon-wrapper {
             position: relative; background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 0 10px;
@@ -81,7 +76,6 @@
         }
         .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
-        /* Popup */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
         .custom-popup .leaflet-popup-content { margin: 0; width: 300px !important; }
         .popup-header { background: #2c3e50; color: white; padding: 12px 15px; }
@@ -89,14 +83,11 @@
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
         .popup-img { width: 40px; height: 40px; object-fit: contain; margin-right: 10px; }
 
-        /* --- Sidebar (แก้ไข Z-Index และ Top) --- */
+        /* --- Sidebar --- */
         .offcanvas-end { 
-            width: 420px; 
-            /* แก้ไข 2: ให้ Z-index น้อยกว่า Header (9999) */
-            z-index: 9990; 
+            width: 420px; z-index: 9990; 
             top: 70px !important; bottom: 0 !important; height: auto !important; 
-            border-left: 1px solid #ddd;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            border-left: 1px solid #ddd; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
         }
         .offcanvas-body { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
         .ranking-scroll-area { flex-grow: 1; overflow-y: auto; padding: 20px; }
@@ -106,36 +97,21 @@
         .rank-img-big { width: 80px; height: auto; object-fit: contain; border: none; }
         .rank-img-small { width: 45px; height: auto; object-fit: contain; border-radius: 0; }
 
-        /* --- Mobile Responsive --- */
         @media (max-width: 768px) { 
-            .top-header { 
-                height: auto; min-height: 80px; 
-                flex-direction: column; padding: 15px; gap: 15px; 
-                align-items: center; 
-            }
+            .top-header { height: auto; min-height: 80px; flex-direction: column; padding: 15px; gap: 15px; align-items: center; }
             .brand-section { width: 100%; justify-content: center; }
-            .brand-icon { display: none; } /* ซ่อนไอคอน */
+            .brand-icon { display: none; }
             .brand-text { flex-direction: column; align-items: center; gap: 2px; line-height: 1.2; }
             .line-1 { font-size: 1.2rem; }
             .line-2 { font-size: 1rem; opacity: 0.85; font-weight: normal; }
-
             .right-controls { flex-direction: row; flex-wrap: wrap; justify-content: space-between; width: 100%; gap: 10px; }
             .amphoe-group { flex-basis: 100%; order: 1; justify-content: space-between; margin-bottom: 5px; }
             .btn-filter { flex-grow: 1; text-align: center; }
             .divider { display: none; }
             .tambon-wrapper { flex-grow: 1; order: 2; margin-right: 10px; }
             .btn-toggle-sidebar { order: 3; }
-
-            /* --- แก้ไข 3: ปรับตำแหน่ง Sidebar บนมือถือ --- */
-            .offcanvas-end { 
-                width: 100%; 
-                /* ดันลงมาให้พ้น Header (คำนวณเผื่อความสูง Header มือถือ ~180px) */
-                top: 190px !important; 
-                height: calc(100vh - 190px) !important;
-            }
-            /* ปิด Backdrop ของ Bootstrap เพื่อให้กด Header ได้ */
+            .offcanvas-end { width: 100%; top: 190px !important; height: calc(100vh - 190px) !important; }
             .offcanvas-backdrop { display: none !important; }
-            
             .map-legend { display: none; }
         }
     </style>
@@ -154,16 +130,13 @@
         <div class="right-controls">
             <div id="amphoeGroup" class="amphoe-group">
                 </div>
-
             <div class="divider"></div>
-
             <div class="tambon-wrapper">
                 <select id="selectTambon" class="custom-select" onchange="filterData()" disabled>
                     <option value="all">🚩 ทุกตำบล</option>
                 </select>
                 <i class="fas fa-chevron-down text-white dropdown-icon"></i>
             </div>
-
             <button class="btn-toggle-sidebar" type="button" data-bs-toggle="offcanvas" data-bs-target="#rightSidebar">
                 <i class="fas fa-list-ol me-2"></i> ผลคะแนน
             </button>
@@ -188,7 +161,7 @@
             <div class="ranking-scroll-area">
                 <h6 class="fw-bold text-secondary small mb-3">🏆 3 อันดับแรก (ตามพื้นที่ที่เลือก)</h6>
                 <div id="top3List"></div>
-                <h6 class="fw-bold text-secondary small mb-3 mt-4">อันดับอื่นๆ</h6>
+                <h6 class="fw-bold text-secondary small mb-3 mt-4">อันดับอื่น ๆ</h6>
                 <div id="next3List"></div>
             </div>
             <div class="stats-fixed-bottom">
@@ -259,7 +232,6 @@
                 imgPopup: "https://img2.pic.in.th/69adc3cca999bb66d.png" 
             }
         ];
-
 
         const map = L.map('map', { zoomControl: false }).setView([6.05, 101.80], 10);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -524,12 +496,13 @@
             next3Div.innerHTML = '';
             for(let i=3; i<6; i++) {
                 let c = ranked[i];
+                // ปรับ CSS ตรงนี้: ลบ lh-1 และใส่ line-height 1.3
                 next3Div.innerHTML += `
                     <div class="d-flex align-items-center border-bottom py-2 justify-content-between">
                         <div class="d-flex align-items-center flex-grow-1" style="min-width: 0;">
                             <span class="me-3 text-muted fw-bold small text-center" style="width:30px; flex-shrink: 0;">#${i+1}</span>
                             <img src="${c.imgSidebar}" class="rank-img-small me-3">
-                            <div class="text-start lh-1 overflow-hidden">
+                            <div class="text-start overflow-hidden" style="line-height: 1.3;">
                                 <div class="fw-bold text-dark text-truncate" style="font-size:0.9rem;">เบอร์ ${c.no}</div>
                                 <small class="text-muted text-truncate" style="font-size:0.8rem;">${c.name}</small>
                             </div>
