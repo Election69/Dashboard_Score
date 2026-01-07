@@ -27,7 +27,6 @@
         .brand-section { display: flex; align-items: center; }
         .brand-text { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.3rem; }
 
-        /* Controls */
         .right-controls { display: flex; align-items: center; gap: 15px; }
         
         .amphoe-group {
@@ -75,11 +74,70 @@
         }
         .color-dot { display: inline-block; width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
 
-        /* Popup */
+        /* Popup Styling */
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
-        .custom-popup .leaflet-popup-content { margin: 0; width: 320px !important; } /* ขยายกว้างขึ้นนิดหน่อย */
-        .popup-header { background: #2c3e50; color: white; padding: 12px 15px; text-align: center; }
-        .popup-body { padding: 15px; background: #fff; }
+        .custom-popup .leaflet-popup-content { margin: 0; width: 340px !important; }
+        
+        .popup-header { background: #2c3e50; color: white; padding: 15px 10px; text-align: center; }
+        
+        /* Unit Selector Container */
+        .popup-unit-container {
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* ปุ่ม A (ภาพรวม) */
+        .btn-overview-wrapper {
+            margin-bottom: 8px;
+            display: flex; justify-content: center;
+        }
+        .btn-unit-select.btn-overview {
+            width: 100%; max-width: 250px; 
+            border-radius: 20px;
+            background: #3f8a49; color: #d9e0e7; border-color: #91f1a9;
+        }
+        .btn-unit-select.btn-overview.active {
+            background: #3f8a49; color: #fff;
+        }
+
+        /* Grid - Horizontal Scroll */
+        .popup-unit-grid {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 5px 2px 12px 2px;
+            /* Default Alignment (จะถูก override โดย JS) */
+            justify-content: flex-start;
+            
+            scrollbar-width: thin; 
+            scrollbar-color: #adb5bd #f1f3f5;
+        }
+
+        .popup-unit-grid::-webkit-scrollbar { height: 7px; }
+        .popup-unit-grid::-webkit-scrollbar-track { background: #f1f3f5; border-radius: 4px; }
+        .popup-unit-grid::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
+        .popup-unit-grid::-webkit-scrollbar-thumb:hover { background: #868e96; }
+        
+        /* ปุ่มตัวเลข */
+        .btn-unit-select {
+            width: 35px; height: 35px; 
+            border: 1px solid #ced4da; background: white; color: #555;
+            border-radius: 50%;
+            font-size: 0.9rem; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; 
+            flex-shrink: 0;
+        }
+        .btn-unit-select:hover { background: #e9ecef; border-color: #adb5bd; }
+        .btn-unit-select.active { 
+            background: #2c3e50; color: white; border-color: #2c3e50; 
+            transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .popup-body { padding: 15px; background: #fff; min-height: 250px; }
         .popup-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
         .popup-img { width: 40px; height: 40px; object-fit: contain; margin-right: 10px; }
 
@@ -102,8 +160,6 @@
             .brand-section { width: 100%; justify-content: center; }
             .brand-icon { display: none; }
             .brand-text { flex-direction: column; align-items: center; gap: 2px; line-height: 1.2; }
-            .line-1 { font-size: 1.2rem; }
-            .line-2 { font-size: 1rem; opacity: 0.85; font-weight: normal; }
             .right-controls { flex-direction: row; flex-wrap: wrap; justify-content: space-between; width: 100%; gap: 10px; }
             .amphoe-group { flex-basis: 100%; order: 1; justify-content: space-between; margin-bottom: 5px; }
             .btn-filter { flex-grow: 1; text-align: center; }
@@ -122,7 +178,7 @@
         <div class="brand-section">
             <i class="fas fa-vote-yea me-3 text-warning brand-icon" style="font-size: 1.5rem;"></i>
             <div class="brand-text">
-                <span class="line-1">รายงานผลคะแนนเลือกตั้ง ส.ส. 2569</span>
+                <span class="line-1">รายงานผลคะแนนเลือกตั้ง ส.ส. 2569 (อย่างไม่เป็นทางการ)</span>
                 <span class="line-2">เขต 4 นราธิวาส</span>
             </div>
         </div>
@@ -233,7 +289,7 @@
             }
         ];
 
-        const map = L.map('map', { zoomControl: false }).setView([6.10, 101.82], 10);
+        const map = L.map('map', { zoomControl: false }).setView([6.05, 101.80], 10);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -383,33 +439,19 @@
             }
         }
 
-        // --- New Helper Function: คำนวณคะแนนรวมตำบล ---
-        function getTambonStats(targetAmphoe, targetTambon) {
-            let aggScores = [0,0,0,0,0,0];
-            let aggEligible = 0;
-            let aggVoted = 0;
-
-            globalData.units.forEach(unit => {
-                // กรองเฉพาะหน่วยที่อยู่ในตำบล/อำเภอ ที่กำหนด
-                if (unit[5] === targetAmphoe && unit[6] === targetTambon) {
-                    aggEligible += (parseInt(unit[4]) || 0);
-
-                    // หาคะแนนล่าสุดของหน่วยนั้น
-                    const unitScoresLog = globalData.scores.filter(row => row[1] === unit[0]);
-                    if (unitScoresLog.length > 0) {
-                        const latest = unitScoresLog[unitScoresLog.length - 1];
-                        let unitVoted = 0;
-                        for(let i=0; i<6; i++) {
-                            let sc = parseInt(latest[5+i]) || 0;
-                            aggScores[i] += sc;
-                            unitVoted += sc;
-                        }
-                        aggVoted += unitVoted;
-                    }
+        function getUnitScores(unitName) {
+            let currentScores = [0,0,0,0,0,0];
+            let votedCount = 0;
+            const unitScoresLog = globalData.scores.filter(row => row[1] === unitName);
+            if (unitScoresLog.length > 0) {
+                const latest = unitScoresLog[unitScoresLog.length - 1];
+                for(let i=0; i<6; i++) {
+                    let sc = parseInt(latest[5+i]) || 0; 
+                    currentScores[i] = sc;
+                    votedCount += sc;
                 }
-            });
-
-            return { scores: aggScores, eligible: aggEligible, voted: aggVoted };
+            }
+            return { scores: currentScores, voted: votedCount };
         }
 
         function calculateAndRender(units, scores) {
@@ -429,77 +471,153 @@
 
                 totalEligible += unitVoters;
 
-                const unitScoresLog = scores.filter(row => row[1] === unitName);
-                let currentScores = [0,0,0,0,0,0];
-                let votedCount = 0;
-
-                if (unitScoresLog.length > 0) {
-                    const latest = unitScoresLog[unitScoresLog.length - 1];
-                    for(let i=0; i<6; i++) {
-                        let sc = parseInt(latest[5+i]) || 0; 
-                        currentScores[i] = sc;
-                        globalScores[i] += sc; 
-                        votedCount += sc;
-                    }
-                    totalVoted += votedCount;
-                }
+                // For Sidebar
+                const unitData = getUnitScores(unitName);
+                for(let i=0; i<6; i++) globalScores[i] += unitData.scores[i];
+                totalVoted += unitData.voted;
 
                 if (!isNaN(lat) && !isNaN(lng)) {
-                    createMarker(lat, lng, unitName, amphoe, tambon, currentScores, unitVoters, votedCount);
+                    createMarker(lat, lng, unitName, amphoe, tambon);
                 }
             });
 
             updateSidebar(globalScores, totalEligible, totalVoted);
         }
 
-        function createMarker(lat, lng, name, amphoe, tambon, scores, eligible, voted) {
-            // *** คำนวณคะแนนรวมของตำบล (แทนที่จะใช้คะแนนของหน่วย) ***
-            const tambonData = getTambonStats(amphoe, tambon);
-            
-            // เรียงลำดับคะแนนตามยอดรวมตำบล
-            let ranked = tambonData.scores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
-            
-            let tVoted = tambonData.voted;
-            let tEligible = tambonData.eligible;
-            let percent = tEligible > 0 ? (tVoted/tEligible*100).toFixed(1) : 0;
+        window.switchPopupView = function(viewId, btn, id) {
+            const container = document.getElementById(id);
+            if(!container) return;
+            container.querySelectorAll('.btn-unit-select').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            container.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
+            document.getElementById(viewId).style.display = 'block';
+        }
 
+        function createMarker(lat, lng, unitName, amphoe, tambon) {
+            const uniqueId = `popup-${Math.floor(Math.random()*1000000)}`;
             let markerColor = "#999";
             if (amphoe.includes("ระแงะ")) markerColor = "#e74c3c";
             else if (amphoe.includes("จะแนะ")) markerColor = "#f39c12";
             else if (amphoe.includes("สุคิริน")) markerColor = "#3498db";
 
-            // *** ปรับแก้ Popup Header ให้แสดงชื่อตำบล และยอดรวม ***
-            let popupContent = `
-                <div class="popup-header" style="background:${markerColor};">
-                    <div style="font-size:1.1rem; font-weight:bold;">${tambon}</div>
-                    <div style="font-size:0.9rem; opacity:0.9;">อำเภอ${amphoe}</div>
-                </div>
-                <div class="popup-body">
+            // 1. หาหน่วยทั้งหมดในตำบลนี้
+            let tambonUnits = globalData.units.filter(u => u[5] === amphoe && u[6] === tambon);
+            
+            // 2. คำนวณภาพรวมตำบล
+            let aggScores = [0,0,0,0,0,0];
+            let aggEligible = 0;
+            let aggVoted = 0;
+            
+            tambonUnits.forEach(u => {
+                aggEligible += (parseInt(u[4]) || 0);
+                let uData = getUnitScores(u[0]);
+                aggVoted += uData.voted;
+                for(let k=0; k<6; k++) aggScores[k] += uData.scores[k];
+            });
+            
+            let rankedAgg = aggScores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
+            let percentAgg = aggEligible > 0 ? (aggVoted/aggEligible*100).toFixed(1) : 0;
+
+            // 3. Views
+            let viewsHTML = `
+                <div id="view-overview-${uniqueId}" class="view-content">
                     <div class="d-flex justify-content-between bg-light p-2 rounded mb-2 text-center">
                          <div style="flex:1;">
-                            <div class="fw-bold text-dark">${tVoted.toLocaleString()}</div>
-                            <small class="text-muted">จำนวนผู้มาใช้สิทธิ์</small>
+                            <div class="fw-bold text-dark">${aggVoted.toLocaleString()}</div>
+                            <small class="text-muted">จำนวนผู้มาใช้สิทธิ์รวม</small>
                          </div>
                          <div style="flex:1; border-left:1px solid #ddd;">
-                            <div class="text-success fw-bold">${percent}%</div>
+                            <div class="text-success fw-bold">${percentAgg}%</div>
                             <small class="text-muted">คิดเป็น</small>
                          </div>
-                    </div>`;
+                    </div>
+                    ${rankedAgg.slice(0,3).map((c, i) => `
+                        <div class="popup-row">
+                            <div style="width:20px; color:#ccc;">#${i+1}</div>
+                            <img src="${c.imgPopup}" class="popup-img">
+                            <div class="flex-grow-1"><small>เบอร์ ${c.no}</small> <br> <b>${c.name}</b></div>
+                            <div class="fw-bold text-success">${c.score.toLocaleString()}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // 4. Buttons (Overview + Scrollable Numbered Units)
+            let buttonsHTML = `<div class="btn-overview-wrapper"><button class="btn-unit-select btn-overview active" onclick="switchPopupView('view-overview-${uniqueId}', this, '${uniqueId}')">ภาพรวมตำบล</button></div>`;
             
-            for(let i=0; i<3; i++) {
-                let c = ranked[i];
-                popupContent += `
-                    <div class="popup-row">
-                        <div style="width:20px; color:#ccc;">#${i+1}</div>
-                        <img src="${c.imgPopup}" class="popup-img">
-                        <div class="flex-grow-1"><small>เบอร์ ${c.no}</small> <br> <b>${c.name}</b></div>
-                        <div class="fw-bold text-success">${c.score.toLocaleString()}</div>
-                    </div>`;
-            }
-            popupContent += `</div>`;
+            // --- Smart Alignment Logic ---
+            // ถ้าน้อยกว่า 6 ปุ่ม -> จัด Center (ดูแลง่าย)
+            // ถ้ามากกว่า -> จัด Start (เพื่อให้เลื่อน Scroll ได้)
+            let filteredUnitsCount = tambonUnits.filter(u => u[0].trim().startsWith("หน่วยที่")).length;
+            let alignmentStyle = filteredUnitsCount <= 6 ? 'justify-content: center;' : 'justify-content: flex-start;';
+
+            buttonsHTML += `<div class="popup-unit-grid" style="${alignmentStyle}">`;
+
+            tambonUnits.forEach((u, idx) => {
+                let uName = u[0];
+                
+                // --- 2. Filter: ต้องขึ้นต้นด้วย "หน่วยที่" เท่านั้น ---
+                if (!uName.trim().startsWith("หน่วยที่")) return;
+
+                // --- 3. Label: ตัดคำที่ไม่ใช่ตัวเลขออก ---
+                let match = uName.match(/\d+/);
+                let unitLabel = match ? match[0] : "?"; 
+
+                let uEligible = parseInt(u[4]) || 0;
+                let uData = getUnitScores(uName);
+                let uVoted = uData.voted;
+                let uPercent = uEligible > 0 ? (uVoted/uEligible*100).toFixed(1) : 0;
+                let uRanked = uData.scores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
+
+                let viewId = `view-unit-${idx}-${uniqueId}`;
+                
+                buttonsHTML += `<button class="btn-unit-select" onclick="switchPopupView('${viewId}', this, '${uniqueId}')">${unitLabel}</button>`;
+
+                viewsHTML += `
+                    <div id="${viewId}" class="view-content" style="display:none;">
+                        <div class="text-center mb-2 fw-bold text-primary">${uName}</div>
+                        <div class="d-flex justify-content-between bg-light p-2 rounded mb-2 text-center">
+                             <div style="flex:1;">
+                                <div class="fw-bold text-dark">${uVoted.toLocaleString()}</div>
+                                <small class="text-muted">จำนวนผู้มาใช้สิทธิ์</small>
+                             </div>
+                             <div style="flex:1; border-left:1px solid #ddd;">
+                                <div class="text-success fw-bold">${uPercent}%</div>
+                                <small class="text-muted">คิดเป็น</small>
+                             </div>
+                        </div>
+                        ${uRanked.slice(0,3).map((c, i) => `
+                            <div class="popup-row">
+                                <div style="width:20px; color:#ccc;">#${i+1}</div>
+                                <img src="${c.imgPopup}" class="popup-img">
+                                <div class="flex-grow-1"><small>เบอร์ ${c.no}</small> <br> <b>${c.name}</b></div>
+                                <div class="fw-bold text-success">${c.score.toLocaleString()}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            buttonsHTML += `</div>`; // Close grid
+
+            let popupContent = `
+                <div id="${uniqueId}">
+                    <div class="popup-header" style="background:${markerColor};">
+                        <div style="font-size:1.25rem; font-weight:800; line-height:1.2;">${tambon}</div>
+                        <div style="font-size:0.95rem; font-weight:400; margin-top:2px; opacity:0.9;">อำเภอ${amphoe}</div>
+                    </div>
+                    
+                    <div class="popup-unit-container">
+                        ${buttonsHTML}
+                    </div>
+
+                    <div class="popup-body">
+                        ${viewsHTML}
+                    </div>
+                </div>
+            `;
 
             L.circleMarker([lat, lng], {
-                radius: 8, fillColor: markerColor, color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 1
+                radius: 6, fillColor: markerColor, color: "#ffffff", weight: 1.5, opacity: 1, fillOpacity: 1
             }).addTo(markersLayer).bindPopup(popupContent, { className: 'custom-popup' });
         }
 
@@ -556,4 +674,3 @@
     </script>
 </body>
 </html>
-
