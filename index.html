@@ -109,7 +109,6 @@
             overflow-x: auto;
             gap: 8px;
             padding: 5px 2px 12px 2px;
-            /* Default Alignment (จะถูก override โดย JS) */
             justify-content: flex-start;
             
             scrollbar-width: thin; 
@@ -131,7 +130,7 @@
             cursor: pointer; transition: 0.2s; 
             flex-shrink: 0;
         }
-        .btn-unit-select:hover { background: #e9ecef; border-color: #adb5bd; }
+        .btn-unit-select:hover { background: #052b0b; border-color: #adb5bd; }
         .btn-unit-select.active { 
             background: #2c3e50; color: white; border-color: #2c3e50; 
             transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -178,8 +177,8 @@
         <div class="brand-section">
             <i class="fas fa-vote-yea me-3 text-warning brand-icon" style="font-size: 1.5rem;"></i>
             <div class="brand-text">
-                <span class="line-1">รายงานผลคะแนนเลือกตั้ง ส.ส. 2569</span>
-                <span class="line-2">เขต 4 นราธิวาส (อย่างไม่เป็นทางการ)</span>
+                <span class="line-1">รายงานผลคะแนนเลือกตั้ง ส.ส. 2569 (อย่างไม่เป็นทางการ)</span>
+                <span class="line-2">เขต 4 นราธิวาส</span>
             </div>
         </div>
 
@@ -220,20 +219,50 @@
                 <h6 class="fw-bold text-secondary small mb-3 mt-4">อันดับอื่น ๆ</h6>
                 <div id="next3List"></div>
             </div>
+            
             <div class="stats-fixed-bottom">
-                <div class="card border-0 shadow-sm rounded-4 bg-white">
-                    <div class="card-body text-center p-3">
-                        <small class="text-uppercase text-muted fw-bold" style="font-size:0.8em;">
-                            <i class="fas fa-users"></i> จำนวนผู้มาใช้สิทธิ์ (ตามพื้นที่ที่เลือก)
-                        </small>
-                        <h2 class="fw-bold text-dark my-1" id="totalTurnout">...</h2>
-                        <div class="progress rounded-pill bg-light mt-2" style="height: 8px;">
-                            <div class="progress-bar bg-success" id="turnoutBar" style="width: 0%"></div>
+                <div class="row g-2">
+                    
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-4 bg-white">
+                            <div class="card-body text-center p-2 d-flex justify-content-between align-items-center">
+                                <div class="text-start">
+                                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:0.7em;">
+                                        <i class="fas fa-users"></i> ผู้ใช้สิทธิ์ / ผู้มีสิทธิ์
+                                    </small>
+                                    <div class="fw-bold text-dark" id="totalTurnout" style="font-size:1.1rem;">... / ...</div>
+                                </div>
+                                <div class="text-end" style="width: 40%;">
+                                    <small id="turnoutPercent" class="fw-bold text-success" style="font-size:0.9rem;">0%</small>
+                                    <div class="progress rounded-pill bg-light mt-1" style="height: 6px;">
+                                        <div class="progress-bar bg-success" id="turnoutBar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <small id="turnoutPercent" class="fw-bold text-success">0%</small>
                     </div>
+
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-4 bg-white">
+                            <div class="card-body text-center p-2 d-flex justify-content-between align-items-center">
+                                <div class="text-start">
+                                    <small class="text-uppercase text-muted fw-bold d-block" style="font-size:0.7em;">
+                                        <i class="fas fa-chart-bar"></i> ความคืบหน้า (ทั้งเขต)
+                                    </small>
+                                    <div class="fw-bold text-primary" id="countingDisplay" style="font-size:1.1rem;">0%</div>
+                                </div>
+                                <div class="text-end" style="width: 40%;">
+                                    <div class="progress rounded-pill bg-light mt-2" style="height: 8px;">
+                                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" id="countingBar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -243,50 +272,13 @@
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxjGKqtdINH8KQIH4exj3qyE2zdsNNDj9Mm5x7kWyFI-UgJ9a2zsbFKXpzffOtpm1ea_Q/exec';
         
-        // ⚠️ เพิ่มข้อมูล Party Name และ Candidate Name ตรงนี้ ⚠️
         const candidatesConfig = [
-            { 
-                no: 1, 
-                party: "พรรคประชาชาติ",       // แก้ชื่อพรรคตรงนี้
-                name: "นายกูเฮง ยาวอหะซัน", // แก้ชื่อผู้สมัครตรงนี้
-                imgSidebar: "https://img2.pic.in.th/14746ae2e943b791f.png", 
-                imgPopup: "https://img2.pic.in.th/1350d68330953409d.png" 
-            },
-            { 
-                no: 2, 
-                party: "พรรคประชาธิปัตย์",
-                name: "นายกอเซ็ง มะเซ็ง",
-                imgSidebar: "https://img5.pic.in.th/file/secure-sv1/2f20164de60a3b0c8.png", 
-                imgPopup: "https://img5.pic.in.th/file/secure-sv1/2e202bb41458cf2b1.png" 
-            },
-            { 
-                no: 3, 
-                party: "พรรคกล้าธรรม",
-                name: "นายอดิศร อาแวเต๊ะ",
-                imgSidebar: "https://img2.pic.in.th/31703a588faa60731.jpg", 
-                imgPopup: "https://img2.pic.in.th/315d39fe9e514ce03.png" 
-            },
-            { 
-                no: 4, 
-                party: "พรรคประชาชน",
-                name: "นายอักบัร เซราลี",
-                imgSidebar: "https://img5.pic.in.th/file/secure-sv1/47d4ceea9d498867b.png", 
-                imgPopup: "https://img5.pic.in.th/file/secure-sv1/48e77349737a85eda.png" 
-            },
-            { 
-                no: 5, 
-                party: "พรรคภูมิใจไทย",
-                name: "นายซาการียา สะอิ",
-                imgSidebar: "https://img2.pic.in.th/51fe81d8bbda133aa.png", 
-                imgPopup: "https://img2.pic.in.th/5b028fab05d845d6a.png" 
-            },
-            { 
-                no: 6, 
-                party: "พรรคเพื่อไทย",
-                name: "นายมาร์วาน บินบีดี",
-                imgSidebar: "https://img2.pic.in.th/69adc3cca999bb66d.png", 
-                imgPopup: "https://img2.pic.in.th/69adc3cca999bb66d.png" 
-            }
+            { no: 1, party: "พรรคประชาชาติ", name: "นายกูเฮง ยาวอหะซัน", imgSidebar: "https://img2.pic.in.th/14746ae2e943b791f.png", imgPopup: "https://img2.pic.in.th/1350d68330953409d.png" },
+            { no: 2, party: "พรรคประชาธิปัตย์", name: "นายกอเซ็ง มะเซ็ง", imgSidebar: "https://img5.pic.in.th/file/secure-sv1/2f20164de60a3b0c8.png", imgPopup: "https://img5.pic.in.th/file/secure-sv1/2e202bb41458cf2b1.png" },
+            { no: 3, party: "พรรคกล้าธรรม", name: "นายอดิศร อาแวเต๊ะ", imgSidebar: "https://img2.pic.in.th/31703a588faa60731.jpg", imgPopup: "https://img2.pic.in.th/315d39fe9e514ce03.png" },
+            { no: 4, party: "พรรคประชาชน", name: "นายอักบัร เซราลี", imgSidebar: "https://img5.pic.in.th/file/secure-sv1/47d4ceea9d498867b.png", imgPopup: "https://img5.pic.in.th/file/secure-sv1/48e77349737a85eda.png" },
+            { no: 5, party: "พรรคภูมิใจไทย", name: "นายซาการียา สะอิ", imgSidebar: "https://img2.pic.in.th/51fe81d8bbda133aa.png", imgPopup: "https://img2.pic.in.th/5b028fab05d845d6a.png" },
+            { no: 6, party: "พรรคเพื่อไทย", name: "นายมาร์วาน บินบีดี", imgSidebar: "https://img2.pic.in.th/69adc3cca999bb66d.png", imgPopup: "https://img2.pic.in.th/69adc3cca999bb66d.png" }
         ];
 
         const map = L.map('map', { zoomControl: false }).setView([6.05, 101.80], 10);
@@ -439,14 +431,33 @@
             }
         }
 
+        // --- 🟢 ฟังก์ชันดึงคะแนน (ตรวจสอบ Finish และย้อนกลับไปเอาคะแนนล่าสุด) 🟢 ---
         function getUnitScores(unitName) {
             let currentScores = [0,0,0,0,0,0];
             let votedCount = 0;
+            
+            // กรองประวัติของหน่วยนี้
             const unitScoresLog = globalData.scores.filter(row => row[1] === unitName);
+            
             if (unitScoresLog.length > 0) {
-                const latest = unitScoresLog[unitScoresLog.length - 1];
+                // เอารายการล่าสุดมาดู
+                let targetRow = unitScoresLog[unitScoresLog.length - 1];
+                
+                // เช็คว่ารายการล่าสุดคือ 'Finish' หรือไม่ (คอลัมน์ E หรือ Index 4)
+                if (targetRow[4] === 'Finish') {
+                    // ถ้า Finish (ซึ่งคะแนนเป็น 0) ให้วนลูปย้อนกลับไปหาอันก่อนหน้าที่ไม่ใช่ Finish
+                    for (let i = unitScoresLog.length - 2; i >= 0; i--) {
+                        if (unitScoresLog[i][4] !== 'Finish') {
+                            targetRow = unitScoresLog[i]; // เจอแล้ว! ใช้คะแนนจากแถวนี้
+                            break;
+                        }
+                    }
+                    // ถ้าหาไม่เจอ (กรณีมีแต่ Finish) ก็จะเป็นคะแนน 0 ตามปกติ
+                }
+
+                // ดึงคะแนนจากแถวที่เลือกมาได้ (targetRow)
                 for(let i=0; i<6; i++) {
-                    let sc = parseInt(latest[5+i]) || 0; 
+                    let sc = parseInt(targetRow[5+i]) || 0; 
                     currentScores[i] = sc;
                     votedCount += sc;
                 }
@@ -471,8 +482,9 @@
 
                 totalEligible += unitVoters;
 
-                // For Sidebar
+                // For Sidebar (เรียกใช้ฟังก์ชัน getUnitScores ที่แก้ไขแล้ว)
                 const unitData = getUnitScores(unitName);
+                
                 for(let i=0; i<6; i++) globalScores[i] += unitData.scores[i];
                 totalVoted += unitData.voted;
 
@@ -481,7 +493,31 @@
                 }
             });
 
-            updateSidebar(globalScores, totalEligible, totalVoted);
+            // ----------------------------------------------------
+            // 🟢 ส่วนคำนวณ Progress (Finish / Total)
+            // ----------------------------------------------------
+            let globalCompleted = 0;
+            let globalTotalUnits = globalData.units.length;
+
+            // วนลูปเช็คทุกหน่วยในระบบ ว่ามีสถานะ 'Finish' หรือไม่
+            globalData.units.forEach(u => {
+                const uName = u[0];
+                const logs = scores.filter(row => row[1] === uName);
+                
+                // ตรวจสอบคอลัมน์ E (Index 4) ว่ามีคำว่า 'Finish' หรือไม่
+                const isFinished = logs.some(log => log[4] === 'Finish');
+                if (isFinished) {
+                    globalCompleted++;
+                }
+            });
+
+            let progressPercent = 0;
+            if (globalTotalUnits > 0) {
+                progressPercent = (globalCompleted / globalTotalUnits) * 100;
+            }
+            // ----------------------------------------------------
+
+            updateSidebar(globalScores, totalEligible, totalVoted, progressPercent);
         }
 
         window.switchPopupView = function(viewId, btn, id) {
@@ -546,8 +582,6 @@
             let buttonsHTML = `<div class="btn-overview-wrapper"><button class="btn-unit-select btn-overview active" onclick="switchPopupView('view-overview-${uniqueId}', this, '${uniqueId}')">ภาพรวมตำบล</button></div>`;
             
             // --- Smart Alignment Logic ---
-            // ถ้าน้อยกว่า 6 ปุ่ม -> จัด Center (ดูแลง่าย)
-            // ถ้ามากกว่า -> จัด Start (เพื่อให้เลื่อน Scroll ได้)
             let filteredUnitsCount = tambonUnits.filter(u => u[0].trim().startsWith("หน่วยที่")).length;
             let alignmentStyle = filteredUnitsCount <= 6 ? 'justify-content: center;' : 'justify-content: flex-start;';
 
@@ -556,10 +590,8 @@
             tambonUnits.forEach((u, idx) => {
                 let uName = u[0];
                 
-                // --- 2. Filter: ต้องขึ้นต้นด้วย "หน่วยที่" เท่านั้น ---
                 if (!uName.trim().startsWith("หน่วยที่")) return;
 
-                // --- 3. Label: ตัดคำที่ไม่ใช่ตัวเลขออก ---
                 let match = uName.match(/\d+/);
                 let unitLabel = match ? match[0] : "?"; 
 
@@ -597,7 +629,7 @@
                     </div>
                 `;
             });
-            buttonsHTML += `</div>`; // Close grid
+            buttonsHTML += `</div>`; 
 
             let popupContent = `
                 <div id="${uniqueId}">
@@ -617,16 +649,22 @@
             `;
 
             L.circleMarker([lat, lng], {
-                radius: 6, fillColor: markerColor, color: "#ffffff", weight: 1.5, opacity: 1, fillOpacity: 1
+                radius: 8, fillColor: markerColor, color: "#ffffff", weight: 1.5, opacity: 1, fillOpacity: 1
             }).addTo(markersLayer).bindPopup(popupContent, { className: 'custom-popup' });
         }
 
-        function updateSidebar(globalScores, totalEligible, totalVoted) {
+        function updateSidebar(globalScores, totalEligible, totalVoted, progressPercent) {
+            // 1. Turnout
             document.getElementById('totalTurnout').innerText = `${totalVoted.toLocaleString()} / ${totalEligible.toLocaleString()}`;
             let percent = totalEligible > 0 ? (totalVoted/totalEligible*100) : 0;
             document.getElementById('turnoutBar').style.width = `${percent}%`;
             document.getElementById('turnoutPercent').innerText = `${percent.toFixed(2)}%`;
 
+            // 2. Counting Progress (รับค่าจาก parameter แล้ว)
+            document.getElementById('countingDisplay').innerText = `${progressPercent.toFixed(1)}%`;
+            document.getElementById('countingBar').style.width = `${progressPercent}%`;
+
+            // 3. Ranking
             let ranked = globalScores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
 
             const top3Div = document.getElementById('top3List');
@@ -674,4 +712,3 @@
     </script>
 </body>
 </html>
-
