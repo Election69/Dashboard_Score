@@ -204,7 +204,7 @@
         <div class="offcanvas-body bg-light">
             <div class="ranking-scroll-area">
                 <div id="top3List"></div>
-                <div id="next3List"></div>
+                <div id="next6List"></div>
             </div>
             
             <div class="stats-fixed-bottom">
@@ -420,7 +420,7 @@
 
         // --- 🟢 ฟังก์ชันดึงคะแนน (Finish Logic) 🟢 ---
         function getUnitScores(unitName) {
-            let currentScores = [0,0,0,0,0,0];
+            let currentScores = [0,0,0,0,0,0,0,0];
             let votedCount = 0;
             const unitScoresLog = globalData.scores.filter(row => row[1] === unitName);
             
@@ -437,7 +437,7 @@
                     }
                 }
 
-                for(let i=0; i<6; i++) {
+                for(let i=0; i<8; i++) {
                     let sc = parseInt(targetRow[5+i]) || 0; 
                     currentScores[i] = sc;
                     votedCount += sc;
@@ -449,7 +449,7 @@
         function calculateAndRender(units, scores) {
             markersLayer.clearLayers();
 
-            let globalScores = [0,0,0,0,0,0];
+            let globalScores = [0,0,0,0,0,0,0,0];
             let totalEligible = 0;
             let totalVoted = 0;
 
@@ -465,7 +465,7 @@
 
                 const unitData = getUnitScores(unitName);
                 
-                for(let i=0; i<6; i++) globalScores[i] += unitData.scores[i];
+                for(let i=0; i<8; i++) globalScores[i] += unitData.scores[i];
                 totalVoted += unitData.voted;
 
                 if (!isNaN(lat) && !isNaN(lng)) {
@@ -515,7 +515,7 @@
 
             let tambonUnits = globalData.units.filter(u => u[5] === amphoe && u[6] === tambon);
             
-            let aggScores = [0,0,0,0,0,0];
+            let aggScores = [0,0,0,0,0,0,0,0];
             let aggEligible = 0;
             let aggVoted = 0;
             
@@ -523,7 +523,7 @@
                 aggEligible += (parseInt(u[4]) || 0);
                 let uData = getUnitScores(u[0]);
                 aggVoted += uData.voted;
-                for(let k=0; k<6; k++) aggScores[k] += uData.scores[k];
+                for(let k=0; k<8; k++) aggScores[k] += uData.scores[k];
             });
             
             let rankedAgg = aggScores.map((score, index) => ({ score, ...candidatesConfig[index] })).sort((a, b) => b.score - a.score);
@@ -653,9 +653,9 @@
                     </div>`;
             }
             
-            const next3Div = document.getElementById('next3List');
+            const next3Div = document.getElementById('next6List');
             next3Div.innerHTML = '';
-            for(let i=3; i<6; i++) {
+            for(let i=3; i<8; i++) {
                 let c = ranked[i];
                 next3Div.innerHTML += `
                     <div class="d-flex align-items-center border-bottom py-2 justify-content-between">
@@ -674,7 +674,6 @@
     </script>
 </body>
 </html>
-
 
 
 
